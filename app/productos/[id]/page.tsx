@@ -13,9 +13,9 @@ import { createClient } from "@/lib/supabase/server"
 export default async function ProductDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: { id: string }
 }) {
-  const { id } = await params
+  const { id } = params
   const supabase = await createClient()
 
   // Get product
@@ -49,7 +49,7 @@ export default async function ProductDetailPage({
                 src={product.image_url || "/placeholder.svg?height=600&width=600"}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-contain"
                 priority
               />
               {isOutOfStock && (
@@ -87,7 +87,7 @@ export default async function ProductDetailPage({
                 </div>
               </div>
 
-              <AddToCartButton product={product} className="w-full mb-4" size="lg" />
+              <AddToCartButton product={product} className="w-full mb-4 lg" />
 
               {/* Features */}
               <Card className="mt-6">
