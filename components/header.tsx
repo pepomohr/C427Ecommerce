@@ -19,7 +19,7 @@ export function Header({ isAuthenticated = false, isAdmin = false }: HeaderProps
         {/* Logo */}
         <Link href="/" className="flex items-center">
       <Image
-        src="/logo.png" // reemplazá con la ruta de tu imagen
+        src="/c427logodorado.png" // reemplazá con la ruta de tu imagen
         alt="C427 Logo"
         width={120}     // ancho de la imagen
         height={48}     // alto de la imagen
