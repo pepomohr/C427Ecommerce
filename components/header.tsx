@@ -18,14 +18,14 @@ export function Header({ isAuthenticated = false, isAdmin = false }: HeaderProps
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         {/* Logo */}
         <Link href="/" className="flex items-center">
-      <Image
-        src="/c427logodorado.png" // reemplazá con la ruta de tu imagen
-        alt="C427 Logo"
-        width={120}     // ancho de la imagen
-        height={48}     // alto de la imagen
-        priority        // para que cargue rápido
-      />
-    </Link>
+          <Image
+            src="/c427logodorado.png"
+            alt="C427 Logo"
+            width={100}
+            height={10}
+            priority
+          />
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
@@ -45,7 +45,6 @@ export function Header({ isAuthenticated = false, isAdmin = false }: HeaderProps
         {/* Actions */}
         <div className="flex items-center gap-2">
           <CartIcon />
-
           <Link href={isAuthenticated ? "/perfil" : "/auth/login"}>
             <Button variant="ghost" size="icon">
               <User className="h-5 w-5" />

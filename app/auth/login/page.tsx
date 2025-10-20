@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-
+import Image from "next/image"
 import { createClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -45,11 +45,15 @@ export default function LoginPage() {
         <div className="flex flex-col gap-6">
           {/* Logo */}
           <div className="text-center mb-4">
-            <Link href="/">
-              <span className="text-4xl font-serif font-bold tracking-tight" style={{ color: "oklch(0.65 0.15 85)" }}>
-                C427
-              </span>
-            </Link>
+            <Link href="/" className="aling items-center justify-center flex">
+          <Image
+            src="/c427logodorado.png"
+            alt="C427 Logo"
+            width={190}
+            height={10}
+            priority
+          />
+        </Link>
           </div>
 
           <Card>

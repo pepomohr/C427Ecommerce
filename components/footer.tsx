@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from "next/image"
 
 export function Footer() {
   return (
@@ -7,9 +8,15 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div>
-            <h3 className="text-2xl font-serif font-bold mb-4" style={{ color: "oklch(0.65 0.15 85)" }}>
-              C427
-            </h3>
+           <Link href="/" className="flex items-center">
+          <Image
+            src="/c427logodorado.png"
+            alt="C427 Logo"
+            width={100}
+            height={10}
+            priority
+          />
+        </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Productos de alta calidad para el cuidado facial y corporal. Tu belleza es nuestra prioridad.
             </p>
@@ -52,9 +59,10 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Contacto</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>Email: info@c427.com</li>
-              <li>Tel: +54 11 1234-5678</li>
+              <li>Email: consultorioc427@gmail.com</li>
+              <li>Tel: +54 9 11 6035-2289</li>
               <li>Buenos Aires, Argentina</li>
+              <li>Maipú 170, Banfield</li>
             </ul>
           </div>
         </div>

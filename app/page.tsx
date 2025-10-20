@@ -22,7 +22,11 @@ export default async function HomePage() {
   }
 
   // Get featured products (first 4 active products)
-  const { data: featuredProducts } = await supabase.from("products").select("*").eq("is_active", true).limit(4)
+  const { data: featuredProducts } = await supabase
+    .from("products")
+    .select("*")
+    .eq("is_active", true)
+    .limit(4)
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -30,14 +34,20 @@ export default async function HomePage() {
       <Header isAuthenticated={!!user} isAdmin={profile?.role === "admin"} />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-muted/50 to-background py-20 md:py-32">
-          <div className="container px-4 md:px-6">
-            <div className="mx-auto max-w-3xl text-center">
+        {/* 🌄 Hero Section con imagen de fondo */}
+        <section
+          className="relative overflow-hidden py-20 md:py-32 bg-cover bg-center"
+          style={{ backgroundImage: "url('/background-fondo.jpg')" }} // 👈 poné tu imagen en /public
+        >
+          {/* Overlay oscuro para mejor contraste */}d
+          <div className="absolute inset-0 bg-black/40" />
+
+          <div className="container relative z-10 px-4 md:px-6">
+            <div className="mx-auto max-w-3xl text-center text-white">
               <h1 className="font-serif text-4xl md:text-6xl font-bold tracking-tight mb-6 text-balance">
                 Descubre tu Belleza Natural
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 leading-relaxed text-pretty">
+              <p className="text-lg md:text-xl mb-8 leading-relaxed text-pretty">
                 Productos de alta calidad para el cuidado facial y corporal. Tratamientos profesionales para realzar tu
                 belleza.
               </p>
@@ -48,7 +58,7 @@ export default async function HomePage() {
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="text-base bg-transparent">
+                <Button asChild variant="outline" size="lg" className="text-base bg-transparent text-white border-white hover:bg-white/10">
                   <Link href="/productos?category=Facial">Tratamientos Faciales</Link>
                 </Button>
               </div>
