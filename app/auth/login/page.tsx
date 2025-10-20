@@ -42,9 +42,9 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-6 md:p-10 bg-gradient-to-b from-muted/50 to-background">
       <div className="w-full max-w-md">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col">
           {/* Logo */}
-          <div className="text-center mb-4">
+          <div className="">
             <Link href="/" className="aling items-center justify-center flex">
           <Image
             src="/c427logodorado.png"
