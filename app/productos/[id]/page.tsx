@@ -65,7 +65,7 @@ export default async function ProductDetailPage({
                 <Badge variant="secondary" className="mb-3">
                   {product.category}
                 </Badge>
-                <h1 className="font-serif text-3xl md:text-4xl font-bold mb-4">{product.name}</h1>
+                <h1 className=" text-3xl md:text-4xl font-bold mb-4">{product.name}</h1>
                 <p className="text-4xl font-bold mb-6" style={{ color: "oklch(0.35 0.08 160)" }}>
                   ${product.price.toLocaleString("es-AR")}
                 </p>

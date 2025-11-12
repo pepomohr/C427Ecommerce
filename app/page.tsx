@@ -44,12 +44,11 @@ export default async function HomePage() {
 
           <div className="container relative z-10 px-4 md:px-6">
             <div className="mx-auto max-w-3xl text-center text-white">
-              <h1 className="font-serif text-4xl md:text-6xl font-bold tracking-tight mb-6 text-balance">
-                Descubre tu Belleza Natural
+              <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight mb-6 text-balance">
+                Dónde la medicina se encuentra con la estetica
               </h1>
               <p className="text-lg md:text-xl mb-8 leading-relaxed text-pretty">
-                Productos de alta calidad para el cuidado facial y corporal. Tratamientos profesionales para realzar tu
-                belleza.
+                En C427 no solo cuidamos tu piel en nuestros tratamientos, también te acompañamos en casa con los productos ideales para seguir mimándola.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg" className="text-base">

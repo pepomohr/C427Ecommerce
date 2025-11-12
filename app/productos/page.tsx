@@ -84,7 +84,7 @@ function ProductsContent() {
         <div className="container px-4 md:px-6 py-8 md:py-12">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="font-serif text-3xl md:text-4xl font-bold mb-2">Nuestros Productos</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Nuestros Productos</h1>
             <p className="text-muted-foreground leading-relaxed">Explora nuestra colección completa de tratamientos</p>
           </div>
 

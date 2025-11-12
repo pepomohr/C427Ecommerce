@@ -45,7 +45,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {product.name}
           </h3>
         </Link>
-        <p className="text-sm text-muted-foreground line-clamp-2 mb-3 leading-relaxed">{product.description}</p>
+        <p className="text-sm text-muted-foreground line-clamp-1 mb-3 leading-relaxed">{product.description}</p>
         <p className="text-2xl font-bold" style={{ color: "oklch(0.35 0.08 160)" }}>
           ${product.price.toLocaleString("es-AR")}
         </p>

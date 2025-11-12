@@ -18,7 +18,7 @@ export function Footer() {
           />
         </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Productos de alta calidad para el cuidado facial y corporal. Tu belleza es nuestra prioridad.
+              Cada piel es única y te enseñamos a cuidarla como se merece.
             </p>
           </div>
 
