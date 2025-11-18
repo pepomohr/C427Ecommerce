@@ -43,7 +43,7 @@ export default async function AdminOrdersPage() {
             </Link>
           </Button>
 
-          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-8">Gestión de Pedidos</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-8">Gestión de Pedidos</h1>
 
           <Card>
             <CardHeader>

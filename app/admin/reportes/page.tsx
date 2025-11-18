@@ -106,7 +106,7 @@ export default async function AdminReportsPage() {
 
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="font-serif text-3xl md:text-4xl font-bold">Reportes y Análisis</h1>
+              <h1 className="text-3xl md:text-4xl font-bold">Reportes y Análisis</h1>
               <p className="text-muted-foreground mt-2">Visualiza el rendimiento de tu negocio</p>
             </div>
             <Button asChild>

@@ -88,7 +88,7 @@ export default function ExpensesPage() {
             </Link>
           </Button>
 
-          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-8">Gestión de Gastos</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-8">Gestión de Gastos</h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Add Expense Form */}

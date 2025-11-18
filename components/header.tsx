@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { User, Menu } from "lucide-react"
+import { User, Menu, Sparkles } from "lucide-react" // Agregué Sparkles para darle onda si querés, sino borralo
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { CartIcon } from "@/components/cart-icon"
@@ -34,6 +34,9 @@ export function Header({ isAuthenticated = false, isAdmin = false }: HeaderProps
           </Link>
           <Link href="/productos" className="text-sm font-medium transition-colors hover:text-primary">
             Productos
+          </Link>
+          <Link href="/diagnostico" className="text-sm font-medium transition-colors hover:text-primary flex items-center gap-1">
+             Diagnóstico
           </Link>
           {isAdmin && (
             <Link href="/admin" className="text-sm font-medium transition-colors hover:text-primary">
@@ -67,6 +70,9 @@ export function Header({ isAuthenticated = false, isAdmin = false }: HeaderProps
                 </Link>
                 <Link href="/productos" className="text-lg font-medium transition-colors hover:text-primary">
                   Productos
+                </Link>
+                <Link href="/diagnostico" className="text-lg font-medium transition-colors hover:text-primary flex items-center gap-2">
+                  Diagnóstico <Sparkles className="w-4 h-4 text-yellow-500" />
                 </Link>
                 {isAdmin && (
                   <Link href="/admin" className="text-lg font-medium transition-colors hover:text-primary">

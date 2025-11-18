@@ -20,7 +20,7 @@ export default function CartPage() {
 
         <main className="flex-1">
           <div className="container px-4 md:px-6 py-8 md:py-12">
-            <h1 className="font-serif text-3xl md:text-4xl font-bold mb-8">Carrito de Compras</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-8">Carrito de Compras</h1>
 
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-16">
