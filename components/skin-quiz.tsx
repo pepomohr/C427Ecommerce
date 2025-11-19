@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image" // <--- Importamos Image
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Sparkles, ArrowRight, RefreshCcw } from "lucide-react"
 
 // ACÁ MAÑANA DEFINIMOS LOS PRODUCTOS REALES
-// Por ahora son placeholders para que no tire error
 const RUTINAS = {
   grasa: {
     titulo: "Rutina Control & Detox",
@@ -24,7 +24,6 @@ const RUTINAS = {
     descripcion: "El equilibrio perfecto para cuidar zona T y mejillas.",
     productos: ["Emulsión de Limpieza", "Hidratante Ligera"]
   },
-  // Mañana agregamos 'madura' o 'sensible' si hace falta
 }
 
 const PREGUNTAS = [
@@ -35,7 +34,7 @@ const PREGUNTAS = [
       { texto: "Normal, sin cambios", valor: "mixta" },
       { texto: "Brillosa solo en frente o nariz", valor: "mixta" },
       { texto: "Brillosa en todo el rostro", valor: "grasa" },
-      { texto: "Sensible o con enrojecimiento", valor: "seca" }, // Asumimos seca/sensible por ahora
+      { texto: "Sensible o con enrojecimiento", valor: "seca" },
     ]
   },
   {
@@ -43,7 +42,7 @@ const PREGUNTAS = [
     opciones: [
       { texto: "Aumentar hidratación", valor: "seca" },
       { texto: "Reducir brillo o granitos", valor: "grasa" },
-      { texto: "Suavizar arrugas o flacidez", valor: "seca" }, // Tira a piel madura/seca
+      { texto: "Suavizar arrugas o flacidez", valor: "seca" },
       { texto: "Calmar sensibilidad o irritación", valor: "seca" },
       { texto: "Mejorar luminosidad", valor: "mixta" },
     ]
@@ -51,17 +50,17 @@ const PREGUNTAS = [
   {
     texto: "¿En qué grupo de edad estás?",
     opciones: [
-      { texto: "Menos de 25 años", valor: "grasa" }, // Tendencia joven
+      { texto: "Menos de 25 años", valor: "grasa" },
       { texto: "25 a 35 años", valor: "mixta" },
       { texto: "36 a 45 años", valor: "mixta" },
       { texto: "46 a 55 años", valor: "seca" },
-      { texto: "Más de 55 años", valor: "seca" }, // Tendencia madura
+      { texto: "Más de 55 años", valor: "seca" },
     ]
   },
   {
     texto: "¿Con qué frecuencia usás protector solar?",
     opciones: [
-      { texto: "Todos los días", valor: "mixta" }, // Irrelevante para el tipo, pero suma puntos neutros
+      { texto: "Todos los días", valor: "mixta" },
       { texto: "Solo en verano o al sol", valor: "mixta" },
       { texto: "Casi nunca", valor: "mixta" },
     ]
@@ -91,8 +90,6 @@ export function SkinQuiz() {
   const [resultado, setResultado] = useState<keyof typeof RUTINAS | null>(null)
 
   const responder = (valor: string) => {
-    // Sumamos puntos (Mañana refinamos esta lógica con la dermatologa)
-    // Si el valor no es grasa/seca/mixta, no suma nada o suma al default
     if (valor in puntos) {
        const key = valor as keyof typeof puntos
        setPuntos({ ...puntos, [key]: puntos[key] + 1 })
@@ -101,12 +98,9 @@ export function SkinQuiz() {
     if (step < PREGUNTAS.length - 1) {
       setStep(step + 1)
     } else {
-      // Calcular ganador simple por mayoría
       const ganador = Object.keys(puntos).reduce((a, b) => 
         puntos[a as keyof typeof puntos] > puntos[b as keyof typeof puntos] ? a : b
       ) as keyof typeof RUTINAS
-      
-      // Si hay empate o gana algo raro, default a mixta
       setResultado(ganador || "mixta")
     }
   }
@@ -121,7 +115,7 @@ export function SkinQuiz() {
     const r = RUTINAS[resultado]
     return (
       <Card className="w-full max-w-lg mx-auto border-primary shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <CardHeader className="text-center bg-primary/10 rounded-t-lg pb-8 pt-8">
+        <CardHeader className="text-center bg-primary/10 rounded-t-lg pb-8 pt-8 relative">
           <div className="mx-auto bg-primary text-primary-foreground w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-lg">
             <Sparkles className="w-7 h-7" />
           </div>
@@ -165,20 +159,36 @@ export function SkinQuiz() {
   return (
     <Card className="w-full max-w-lg mx-auto shadow-xl border-t-4 border-t-primary">
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">Test de Piel C427</span>
-          <span className="text-sm font-medium text-muted-foreground bg-secondary px-2 py-1 rounded-md">
-            {step + 1} / {PREGUNTAS.length}
-          </span>
+        {/* CABECERA CON LOGO A LA DERECHA */}
+        <div className="flex justify-between items-center">
+            <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-primary">Test de Piel</span>
+                <CardTitle className="text-2xl mt-1">Descubrí tu rutina</CardTitle>
+            </div>
+            {/* LOGO ACÁ */}
+            <div className="relative w-30 h-30">
+                 <Image 
+                    src="/c427logodorado.png" 
+                    alt="C427 Logo" 
+                    fill
+                    className="object-cover mt-1"
+                 />
+            </div>
         </div>
-        <CardTitle className="text-2xl">Descubrí tu rutina</CardTitle>
-        <div className="w-full bg-secondary h-1.5 rounded-full mt-4 overflow-hidden">
+
+        {/* BARRA DE PROGRESO */}
+        <div className="flex justify-between items-end text-sm text-muted-foreground mb-2">
+            <span>Progreso</span>
+            <span className="font-medium text-foreground">{step + 1} / {PREGUNTAS.length}</span>
+        </div>
+        <div className="w-full bg-secondary h-1.5 rounded-full overflow-hidden">
           <div 
             className="bg-primary h-full transition-all duration-500 ease-out rounded-full" 
             style={{ width: `${((step + 1) / PREGUNTAS.length) * 100}%` }}
           />
         </div>
       </CardHeader>
+      
       <CardContent className="grid gap-4 pt-6 pb-8">
         <div className="mb-2">
           <h3 className="text-xl font-medium leading-tight">{PREGUNTAS[step].texto}</h3>

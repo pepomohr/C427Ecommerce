@@ -19,7 +19,7 @@ export default async function DiagnosticoPage() {
         {/* Botón Volver */}
         <div className="w-full mb-6">
           <Button 
-            variant="outline" 
+            variant="ghost" 
             asChild 
             className="gap-2 shadow-sm hover:bg-primary/10 transition-all"
           >
@@ -35,7 +35,7 @@ export default async function DiagnosticoPage() {
           <div className="mb-8 text-center">
             <h1 className="text-4xl font-bold mb-4 text-primary">Descubrí tu Rutina Ideal</h1>
             <p className="text-muted-foreground text-lg">
-              Respondé unas breves preguntas y nuestra IA te recomendará 
+              Respondé unas breves preguntas y te recomendaremos 
               los productos perfectos para tu piel.
             </p>
           </div>

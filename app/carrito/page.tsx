@@ -49,7 +49,7 @@ export default function CartPage() {
       <main className="flex-1">
         <div className="container px-4 md:px-6 py-8 md:py-12">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="font-serif text-3xl md:text-4xl font-bold">Carrito de Compras</h1>
+            <h1 className="text-3xl md:text-4xl font-bold">Carrito de Compras</h1>
             <Button variant="ghost" onClick={clearCart} className="text-destructive hover:text-destructive">
               Vaciar carrito
             </Button>
@@ -140,7 +140,7 @@ export default function CartPage() {
             <div className="lg:col-span-1">
               <Card className="sticky top-20">
                 <CardContent className="p-6">
-                  <h2 className="font-serif text-2xl font-bold mb-6">Resumen del Pedido</h2>
+                  <h2 className="text-2xl font-bold mb-6">Resumen del Pedido</h2>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-sm">
