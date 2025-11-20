@@ -34,12 +34,12 @@ export default async function HomePage() {
       <Header isAuthenticated={!!user} isAdmin={profile?.role === "admin"} />
 
       <main className="flex-1">
-        {/* 🌄 Hero Section con imagen de fondo */}
+        {/* Hero Section con imagen de fondo */}
         <section
           className="relative overflow-hidden py-20 md:py-32 bg-cover bg-center"
-          style={{ backgroundImage: "url('/background-fondo.jpg')" }} // 👈 poné tu imagen en /public
+          style={{ backgroundImage: "url('/background-fondo.jpg')" }} 
         >
-          {/* Overlay oscuro para mejor contraste */}d
+          {/* Overlay oscuro para mejor contraste */}
           <div className="absolute inset-0 bg-black/40" />
 
           <div className="container relative z-10 px-4 md:px-6">

@@ -27,7 +27,7 @@ export async function getProductsForQuiz(productIds: string[]): Promise<ProductD
 
     // 1. Consulta a la base de datos
     const { data, error } = await supabase
-      .from('products') // <--- VERIFICAR: Si tu tabla se llama 'products', cambiá aquí.
+      .from('products') 
       .select('id, name, price, stock, image_url, category') 
       .in('id', productIds); 
 

@@ -63,6 +63,7 @@ export function Footer() {
               <li>Tel: +54 9 11 6035-2289</li>
               <li>Buenos Aires, Argentina</li>
               <li>Maipú 170, Banfield</li>
+              <li><a className="text-primary hover:text-chart-2" href="https://www.instagram.com/medicinaestetica.ok/">Ir a Instagram</a></li>
             </ul>
           </div>
         </div>

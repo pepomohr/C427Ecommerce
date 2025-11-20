@@ -16,12 +16,12 @@ export default function DiagnosticoPage() {
 
       <div className="container mx-auto py-10 px-4 flex flex-col min-h-[80vh]">
         
-        {/* Botón Volver (Alineado a la izquierda) */}
+        {/* Botón Volver */}
         <div className="w-full mb-6">
           <Button 
             variant="outline" 
             asChild 
-            className="gap-2 shadow-sm hover:bg-primary/10 transition-all"
+            className="gap-2 shadow-sm hover:bg-primary transition-all"
           >
             <Link href="/">
               <ArrowLeft className="h-4 w-4" />

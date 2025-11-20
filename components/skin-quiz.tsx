@@ -284,9 +284,6 @@ export function SkinQuiz({ onQuizComplete }: SkinQuizProps) {
       <Card className="w-full max-w-lg mx-auto border-primary shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-500">
         <CardHeader className="text-center bg-primary/10 rounded-t-lg pb-8 pt-8 relative">
           {/* Restauración del Header */}
-          <div className="absolute top-4 right-4 opacity-50">
-              <Image src="/c427logodorado.png" width={40} height={40} alt="Logo" className="w-auto h-8" />
-          </div>
           <div className="mx-auto bg-primary text-primary-foreground w-14 h-14 rounded-full flex items-center justify-center mb-4 shadow-lg">
               <Sparkles className="w-7 h-7" />
           </div>
@@ -345,12 +342,12 @@ export function SkinQuiz({ onQuizComplete }: SkinQuizProps) {
   return (
     <Card className="w-full max-w-lg mx-auto shadow-xl border-t-4 border-t-primary">
       <CardHeader className="pb-2">
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-center mb-4">
             <div>
                 <span className="text-xs font-bold uppercase tracking-widest text-primary">Test de Piel</span>
                 <CardTitle className="text-2xl mt-1">Descubrí tu rutina</CardTitle>
             </div>
-            <div className="relative w-16 h-16">
+            <div className="relative w-30 h-30">
                  <Image 
                     src="/c427logodorado.png" 
                     alt="C427 Logo" 
@@ -385,7 +382,7 @@ export function SkinQuiz({ onQuizComplete }: SkinQuizProps) {
             <Button 
               key={i} 
               variant="outline" 
-              className="h-auto py-4 px-6 justify-start text-left text-base hover:border-primary hover:bg-primary/5 transition-all shadow-sm group"
+              className="h-auto py-4 px-6 justify-start text-left text-base hover:text-primary hover:border-primary hover:bg-primary/5 transition-all shadow-sm group"
               onClick={() => responder(opcion.valor)}
             >
               <span className="w-full flex items-center justify-between">
