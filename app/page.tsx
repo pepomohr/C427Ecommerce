@@ -58,7 +58,7 @@ export default async function HomePage() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="text-base bg-transparent text-white border-white hover:bg-white/10">
-                  <Link href="/productos?category=Facial">Tratamientos Faciales</Link>
+                  <Link href="/productos?category=Facial">Productos Faciales</Link>
                 </Button>
               </div>
             </div>
@@ -75,7 +75,7 @@ export default async function HomePage() {
                 </div>
                 <h3 className="font-semibold text-lg mb-2">Calidad Premium</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Productos seleccionados con los mejores ingredientes
+                  Una línea dermocosmética muy activa y con eficacia comprobada.
                 </p>
               </div>
               <div className="flex flex-col items-center text-center">
@@ -105,7 +105,7 @@ export default async function HomePage() {
               <div className="text-center mb-12">
                 <h2 className=" text-3xl md:text-4xl font-bold mb-4">Productos Destacados</h2>
                 <p className="text-muted-foreground text-lg leading-relaxed">
-                  Descubre nuestra selección de tratamientos más populares
+                  Descubre nuestra selección de productos más populares
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -133,7 +133,7 @@ export default async function HomePage() {
                 href="/productos?category=Facial"
                 className="group relative overflow-hidden rounded-lg bg-primary/5 p-8 md:p-12 hover:bg-primary/10 transition-colors"
               >
-                <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">Tratamientos Faciales</h3>
+                <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">Productos Faciales</h3>
                 <p className="text-muted-foreground mb-4 leading-relaxed">
                   Cuida tu rostro con nuestros productos especializados
                 </p>
@@ -146,7 +146,7 @@ export default async function HomePage() {
                 href="/productos?category=Corporal"
                 className="group relative overflow-hidden rounded-lg bg-accent/5 p-8 md:p-12 hover:bg-accent/10 transition-colors"
               >
-                <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">Tratamientos Corporales</h3>
+                <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">Productos Corporales</h3>
                 <p className="text-muted-foreground mb-4 leading-relaxed">
                   Productos para el cuidado integral de tu cuerpo
                 </p>
