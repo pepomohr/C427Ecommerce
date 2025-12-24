@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "C427 - Clínica Estética",
   description: "Productos de alta calidad para el cuidado facial y corporal",
   generator: "v0.app",
+  verification: {
+    google: "XZo8a7k0UBg4FDtuByZ7b67UGB2nDv-QX6rPzYMzaKQ/>", 
+  },
 }
 
 export default function RootLayout({
