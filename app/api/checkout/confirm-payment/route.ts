@@ -1,60 +1,64 @@
-// app/api/checkout/confirm-payment/route.ts
-
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import mercadopago from 'mercadopago';
+import { MercadoPagoConfig, Payment } from 'mercadopago';
 
-// Re-configuramos el SDK para poder consultar el estado del pago
-mercadopago.configure({
-    access_token: process.env.MP_ACCESS_TOKEN!,
+// 1. Nueva forma de configurar el cliente en la Versión 2
+const client = new MercadoPagoConfig({ 
+    accessToken: process.env.MP_ACCESS_TOKEN || '' 
 });
 
 export async function POST(request: Request) {
     try {
         const supabase = await createClient();
         const body = await request.json();
-        const topic = body.topic || body.type; // A veces viene en 'type', a veces en 'topic'
+        
+        // A veces viene en 'type', a veces en 'topic'
+        const topic = body.topic || body.type; 
 
-        // Solo procesamos pagos, ignoramos otros tipos de notificaciones
-        if (topic !== 'payment' && topic !== 'payment.created' && topic !== payment.updated) {
+        // Corregido: Agregadas comillas y el signo ! que faltaban
+        if (topic !== 'payment' && topic !== 'payment.created' && topic !== 'payment.updated') {
             return NextResponse.json({ message: "Notificación ignorada" }, { status: 200 });
         }
 
-        const paymentId = body.id || body.data?.id; // ID del pago que nos envía MP
+        const paymentId = body.id || body.data?.id; 
 
         if (!paymentId) {
             console.error("Webhook: ID de pago faltante.");
             return NextResponse.json({ message: "ID de pago faltante" }, { status: 400 });
         }
 
-        // 1. Consultar a la API de MP para obtener el estado oficial del pago
-        const paymentResponse = await mercadopago.payment.get(paymentId);
-        const paymentStatus = paymentResponse.body.status;
-        const externalReference = paymentResponse.body.external_reference; // Es el orderId de Supabase
+        // 2. Nueva forma de consultar el pago
+        const payment = new Payment(client);
+        const paymentResponse = await payment.get({ id: paymentId });
         
-        // 2. Mapeo de status de MP a Supabase
+        const paymentStatus = paymentResponse.status;
+        const externalReference = paymentResponse.external_reference; 
+        
+        // 3. Mapeo de status
         let newOrderStatus;
         if (paymentStatus === 'approved') {
             newOrderStatus = 'paid';
-        } else if (paymentStatus === 'pending') {
+        } else if (paymentStatus === 'pending' || paymentStatus === 'in_process') {
             newOrderStatus = 'pending';
         } else {
             newOrderStatus = 'failed';
         }
 
-        // 3. Actualizar la orden en Supabase (usando el orderId de external_reference)
+        // 4. Actualizar la orden en Supabase
         const { error: updateError } = await supabase
             .from('orders')
-            .update({ status: newOrderStatus, mp_payment_id: paymentId })
+            .update({ 
+                status: newOrderStatus, 
+                mp_payment_id: String(paymentId) 
+            })
             .eq('id', externalReference)
-            .eq('status', 'pending'); // Solo actualizamos si estaba pendiente
+            .eq('status', 'pending');
 
         if (updateError) {
             console.error(`Webhook: Error al actualizar la orden ${externalReference}:`, updateError);
             return NextResponse.json({ message: "Error interno al actualizar la DB" }, { status: 500 });
         }
 
-        // MP espera un 200 OK para confirmar que recibimos la notificación
         return NextResponse.json({ message: `Orden ${externalReference} actualizada a ${newOrderStatus}` }, { status: 200 });
 
     } catch (error) {
