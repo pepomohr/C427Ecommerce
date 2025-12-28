@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   description: "Productos de alta calidad para el cuidado facial y corporal",
   generator: "v0.app",
   verification: {
-    google: "XZo8a7k0UBg4FDtuByZ7b67UGB2nDv-QX6rPzYMzaKQ/>", 
+    google: "XZo8a7k0UBg4FDtuByZ7b67UGB2nDv-QX6rPzYMzaKQ", 
   },
 }
 
