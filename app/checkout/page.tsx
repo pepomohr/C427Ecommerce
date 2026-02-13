@@ -156,8 +156,8 @@ export default function CheckoutPage() {
                   </CardHeader>
                   <CardContent className="p-4 sm:p-6">
                     <div className="p-4 border rounded-lg bg-muted/50">
-                      <p className="font-semibold text-sm sm:text-base">Coordinar con la clínica</p>
-                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">Te contactaremos por WhatsApp para coordinar el pago (Transferencia/Efectivo) y el envío.</p>
+                      <p className="font-semibold text-sm sm:text-base">Coordinar vía WhatsApp</p>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1">Te contactaremos para coordinar el pago y el envío de tu compra.</p>
                     </div>
                   </CardContent>
                 </Card>
