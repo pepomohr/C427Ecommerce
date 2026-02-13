@@ -65,7 +65,7 @@ export default function CheckoutPage() {
 
     try {
       const numeroC427 = "5491160352289";
-      const mensajeBase = `*Nuevo Pedido - C427 Clínica Estética*\n\n`;
+      const mensajeBase = `*Nuevo Pedido - C427 Medicina Estética*\n\n`;
       
       const detalleProductos = items.map((item) => 
         `- ${item.product.name} (x${item.quantity}): $${(item.product.price * item.quantity).toLocaleString("es-AR")}`
