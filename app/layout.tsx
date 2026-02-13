@@ -20,7 +20,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "C427 - Clínica Estética",
+  title: "C427 - Medicina Estética",
   description: "Productos de alta calidad para el cuidado facial y corporal",
   generator: "v0.app",
   verification: {

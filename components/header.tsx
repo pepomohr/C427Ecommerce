@@ -72,7 +72,7 @@ export function Header({ isAuthenticated = false, isAdmin = false }: HeaderProps
                   Productos
                 </Link>
                 <Link href="/diagnostico" className="text-lg font-medium transition-colors hover:text-primary flex items-center gap-2">
-                  Diagnóstico <Sparkles className="w-4 h-4 text-yellow-500" />
+                  Diagnóstico 
                 </Link>
                 {isAdmin && (
                   <Link href="/admin" className="text-lg font-medium transition-colors hover:text-primary">
