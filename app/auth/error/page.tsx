@@ -13,7 +13,7 @@ export default async function ErrorPage({ searchParams }: { searchParams: Promis
           {/* Logo */}
           <div className="text-center mb-4">
             <Link href="/">
-              <span className="text-4xl font-serif font-bold tracking-tight" style={{ color: "oklch(0.65 0.15 85)" }}>
+              <span className="text-4xl font-bold tracking-tight" style={{ color: "oklch(0.65 0.15 85)" }}>
                 C427
               </span>
             </Link>

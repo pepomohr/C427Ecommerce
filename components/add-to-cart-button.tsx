@@ -27,8 +27,15 @@ export function AddToCartButton({ product, quantity = 1, className }: AddToCartB
 
   return (
     <Button className={className} onClick={handleAddToCart} disabled={isOutOfStock}>
-      <ShoppingCart className="mr-2 h-4 w-4" />
-      {isOutOfStock ? "Sin Stock" : "Agregar al Carrito"}
+      <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+      {isOutOfStock ? (
+        <span className="ml-1">Sin stock</span>
+      ) : (
+        <>
+          <span className="ml-1 sm:hidden">Agregar</span>
+          <span className="ml-1.5 hidden sm:inline">Agregar al Carrito</span>
+        </>
+      )}
     </Button>
   )
 }

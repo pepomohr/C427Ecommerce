@@ -1,196 +1,195 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductCard } from "@/components/product-card"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Search, X } from "lucide-react"
+import { X } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import type { Product } from "@/lib/types"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel"
+import Autoplay from "embla-carousel-autoplay"
 
+// COMPONENTE INTERNO QUE USA SEARCHPARAMS
 function ProductsContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
+  
+  // Sincronizamos los parámetros
+  const tagParam = searchParams.get("tag")
   const categoryParam = searchParams.get("category")
-
+  const qParam = searchParams.get("q")
+  
+  const selectedTag = tagParam || categoryParam || null
   const [products, setProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(categoryParam)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    loadProducts()
-  }, [])
+  const filterGroups = {
+    CATEGORÍAS: ["facial", "corporal", "accesorios", "regalos"],
+    "¿Qué buscás mejorar?": ["antiedad", "acne", "rosacea", "limpieza", "serums", "proteccion-solar", "contorno-de-ojos", "cuidado-intimo"],
+    "Según tu piel": ["piel-seca", "piel-mixta", "piel-grasa", "piel-sensible"]
+  }
 
-  useEffect(() => {
-    filterProducts()
-  }, [products, searchQuery, selectedCategory])
+  // Lista plana para el carrusel mobile
+  const allTags = ["todos", ...Object.values(filterGroups).flat()]
 
-  useEffect(() => {
-    if (categoryParam) {
-      setSelectedCategory(categoryParam)
+  const formatTagName = (tag: string) => {
+    return tag
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+      .replace('Acne', 'Acné')
+      .replace('Rosacea', 'Rosácea')
+      .replace('Serums', 'Sérums')
+      .replace('Proteccion', 'Protección')
+      .replace('Intimo', 'Íntimo')
+  }
+
+  const updateTagFilter = (tag: string | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (tag) {
+      params.set("tag", tag.toLowerCase())
+      params.delete("category") // Usamos siempre TAG para ser consistentes con la DB
+    } else {
+      params.delete("tag")
+      params.delete("category")
     }
-  }, [categoryParam])
+    router.push(`/productos?${params.toString()}`, { scroll: false })
+  }
 
   async function loadProducts() {
+    setIsLoading(true)
     const supabase = createClient()
-    const { data, error } = await supabase
+    
+    let query = supabase
       .from("products")
       .select("*")
       .eq("is_active", true)
       .order("created_at", { ascending: false })
 
+    // Filtro por Tags en Supabase
+    if (selectedTag && selectedTag.toLowerCase() !== "todos") {
+      query = query.contains("tags", [selectedTag.toLowerCase()])
+    }
+
+    const { data, error } = await query
+
     if (data && !error) {
+      let finalData = data
+      // Filtro de búsqueda por texto (si existe qParam)
+      if (qParam) {
+        finalData = data.filter(p => 
+          p.name.toLowerCase().includes(qParam.toLowerCase()) ||
+          p.description?.toLowerCase().includes(qParam.toLowerCase())
+        )
+      }
       setProducts(data)
+      setFilteredProducts(finalData)
     }
     setIsLoading(false)
   }
 
-  function filterProducts() {
-    let filtered = [...products]
-
-    // Filter by search query
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (product) =>
-          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.description?.toLowerCase().includes(searchQuery.toLowerCase()),
-      )
-    }
-
-    // Filter by category
-    if (selectedCategory) {
-      filtered = filtered.filter((product) => product.category === selectedCategory)
-    }
-
-    setFilteredProducts(filtered)
-  }
-
-  function clearFilters() {
-    setSearchQuery("")
-    setSelectedCategory(null)
-  }
-
-  const hasActiveFilters = searchQuery || selectedCategory
+  useEffect(() => {
+    loadProducts()
+  }, [selectedTag, qParam]) // Re-ejecuta cuando cambia el tag o la búsqueda
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-white font-sans">
       <Header />
-
-      <main className="flex-1">
-        <div className="container px-4 md:px-6 py-8 md:py-12">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Nuestros Productos</h1>
-            <p className="text-muted-foreground leading-relaxed">Explora nuestra colección completa de tratamientos</p>
-          </div>
-
-          {/* Filters */}
-          <div className="mb-8 space-y-4">
-            {/* Search Bar */}
-            <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Buscar productos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            {/* Category Filters */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium">Categoría:</span>
-              <Button
-                variant={selectedCategory === null ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(null)}
-              >
-                Todos
-              </Button>
-              <Button
-                variant={selectedCategory === "Facial" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory("Facial")}
-              >
-                Facial
-              </Button>
-              <Button
-                variant={selectedCategory === "Corporal" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory("Corporal")}
-              >
-                Corporal
-              </Button>
-              {hasActiveFilters && (
-                <Button variant="ghost" size="sm" onClick={clearFilters} className="ml-2">
-                  <X className="h-4 w-4 mr-1" />
-                  Limpiar filtros
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Results Count */}
-          <div className="mb-6">
-            <p className="text-sm text-muted-foreground">
-              {isLoading ? (
-                "Cargando productos..."
-              ) : (
-                <>
-                  Mostrando {filteredProducts.length} {filteredProducts.length === 1 ? "producto" : "productos"}
-                  {hasActiveFilters && " (filtrado)"}
-                </>
-              )}
-            </p>
-          </div>
-
-          {/* Products Grid */}
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-96 bg-muted animate-pulse rounded-lg" />
+      <main className="flex-1 container mx-auto px-4 py-6 md:py-10">
+        {/* Filtros Mobile (Carrusel Horizontal Infinito) */}
+        <div className="md:hidden mb-8 -mx-4 px-4 sticky top-[72px] z-30 bg-white/95 backdrop-blur-sm py-3 border-b border-gray-100 shadow-sm">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+              dragFree: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-2">
+              {allTags.map((t) => (
+                <CarouselItem key={t} className="pl-2 basis-auto">
+                  <button
+                    onClick={() => updateTagFilter(t === "todos" ? null : t)}
+                    className={`whitespace-nowrap px-5 py-2 text-xs rounded-full border transition-all duration-300 font-bold uppercase tracking-widest ${
+                      (!selectedTag && t === "todos") || selectedTag?.toLowerCase() === t.toLowerCase()
+                        ? "bg-[#936c43] text-white border-[#936c43] shadow-md scale-105"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-primary/30"
+                    }`}
+                  >
+                    {t === "todos" ? "Todos" : formatTagName(t)}
+                  </button>
+                </CarouselItem>
               ))}
-            </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+            </CarouselContent>
+          </Carousel>
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-10">
+          {/* Sidebar (Desktop Only) */}
+          <aside className="hidden md:block w-64 space-y-8 sticky top-24 self-start h-[calc(100vh-140px)] overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent hover:scrollbar-thumb-primary/40 transition-colors">
+             {Object.entries(filterGroups).map(([group, tags]) => (
+                <div key={group}>
+                  <h3 className="text-[10px] font-bold tracking-widest uppercase mb-4 border-b pb-2 text-primary/70">{group}</h3>
+                  <div className="flex flex-col gap-1">
+                    {group === "CATEGORÍAS" && (
+                      <button 
+                         onClick={() => updateTagFilter(null)}
+                         className={`text-left px-3 py-2 text-xs rounded-md transition-all ${!selectedTag ? 'bg-[#936c43] text-white font-bold shadow-sm' : 'text-muted-foreground hover:bg-primary/5'}`}
+                      >
+                        Todos los Productos
+                      </button>
+                    )}
+                    {tags.map(t => (
+                      <button 
+                         key={t}
+                         onClick={() => updateTagFilter(t)}
+                         className={`text-left px-3 py-2 text-xs rounded-md transition-all ${selectedTag?.toLowerCase() === t.toLowerCase() ? 'bg-[#936c43] text-white font-bold shadow-sm' : 'text-muted-foreground hover:bg-primary/5'}`}
+                      >
+                        {formatTagName(t)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">No se encontraron productos con los filtros seleccionados</p>
-              <Button onClick={clearFilters} variant="outline">
-                Ver todos los productos
-              </Button>
-            </div>
-          )}
+          </aside>
+
+          {/* Grid de Productos */}
+          <div className="flex-1">
+             <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+               {isLoading ? (
+                 <p className="col-span-full text-center py-20 text-muted-foreground font-light tracking-widest animate-pulse">Cargando tratamientos premium...</p>
+               ) : filteredProducts.length > 0 ? (
+                 filteredProducts.map(p => (
+                   <ProductCard key={p.id} product={p} />
+                 ))
+               ) : (
+                 <div className="col-span-full text-center py-20 bg-muted/30 rounded-3xl border border-dashed border-primary/20">
+                    <p className="text-muted-foreground mb-4 font-light italic">No se encontraron productos en esta categoría.</p>
+                    <Button onClick={() => updateTagFilter(null)} variant="outline" className="rounded-full px-8 uppercase text-[10px] tracking-widest font-bold border-primary/30 text-primary">Ver todo el catálogo</Button>
+                 </div>
+               )}
+             </div>
+          </div>
         </div>
       </main>
-
       <Footer />
     </div>
   )
 }
 
+// EXPORTACIÓN PRINCIPAL CON SUSPENSE
 export default function ProductsPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1 flex items-center justify-center">
-            <p>Cargando...</p>
-          </main>
-          <Footer />
-        </div>
-      }
-    >
+    <Suspense fallback={<div className="h-screen flex items-center justify-center">Cargando C427...</div>}>
       <ProductsContent />
     </Suspense>
   )

@@ -1,10 +1,20 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductCard } from "@/components/product-card"
+import { HeroCarousel } from "@/components/hero-carousel"
+import { Newsletter } from "@/components/newsletter"
 import { createClient } from "@/lib/supabase/server"
-import { ArrowRight, Sparkles, Shield, Truck } from "lucide-react"
+import Testimonials from "@/components/testimonials"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+} from "@/components/ui/carousel"
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -28,139 +38,139 @@ export default async function HomePage() {
     .eq("is_active", true)
     .limit(4)
 
+  // Get latest products (for Lanzamientos)
+  const { data: latestProducts } = await supabase
+    .from("products")
+    .select("*")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(4)
+
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <Header isAuthenticated={!!user} isAdmin={profile?.role === "admin"} />
 
       <main className="flex-1">
-        {/* Hero Section con imagen de fondo */}
-        <section
-          className="relative overflow-hidden py-20 md:py-32 bg-cover bg-center"
-          style={{ backgroundImage: "url('/background-fondo.jpg')" }} 
-        >
-          {/* Overlay oscuro para mejor contraste */}
-          <div className="absolute inset-0 bg-black/40" />
+        <HeroCarousel />
 
-          <div className="container relative z-10 px-4 md:px-6">
-            <div className="mx-auto max-w-3xl text-center text-white">
-              <h1 className="font-serif text-4xl md:text-5xl font-bold tracking-tight mb-6 text-balance">
-                Dónde la medicina se encuentra con la estética
-              </h1>
-              <p className="text-lg md:text-xl mb-8 leading-relaxed text-pretty">
-                En C427 no solo cuidamos tu piel en nuestros tratamientos, también te acompañamos en casa con los productos ideales para seguir mimándola.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button asChild size="lg" className="text-base">
-                  <Link href="/productos">
-                    Ver Productos
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" size="lg" className="text-base bg-transparent text-white border-white hover:bg-white/10">
-                  <Link href="/productos?category=Facial">Productos Faciales</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Features Section */}
-        <section className="py-16 md:py-24 bg-muted/30">
-          <div className="container px-4 md:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="flex flex-col items-center text-center">
-                <div className="mb-4 p-3 rounded-full bg-primary/10">
-                  <Sparkles className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Calidad Premium</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Una línea dermocosmética muy activa y con eficacia comprobada.
-                </p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="mb-4 p-3 rounded-full bg-primary/10">
-                  <Shield className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Compra Segura</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">Pagos protegidos con Mercado Pago</p>
-              </div>
-              <div className="flex flex-col items-center text-center">
-                <div className="mb-4 p-3 rounded-full bg-primary/10">
-                  <Truck className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">Envío Rápido</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Recibí tus productos en la puerta de tu casa
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Featured Products */}
+        {/* Novedades - Fondo Blanco */}
         {featuredProducts && featuredProducts.length > 0 && (
-          <section className="py-16 md:py-24">
+          <section className="py-10 md:py-16 bg-white">
             <div className="container px-4 md:px-6">
-              <div className="text-center mb-12">
-                <h2 className=" text-3xl md:text-4xl font-bold mb-4">Productos Destacados.</h2>
-                <p className="text-muted-foreground text-lg leading-relaxed">
-                  Descubre nuestra selección de productos más populares.
+              <div className="text-left mb-6 md:mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-1 text-primary tracking-tight uppercase">NOVEDADES</h2>
+                <div className="w-12 h-1 bg-primary/20 mb-2"></div>
+                <p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
+                  Descubrí los últimos lanzamientos de nuestra clínica.
                 </p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                 {featuredProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
-              </div>
-              <div className="text-center mt-12">
-                <Button asChild size="lg" variant="outline">
-                  <Link href="/productos">
-                    Ver Todos los Productos
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
               </div>
             </div>
           </section>
         )}
 
-        {/* Categories CTA */}
-        <section className="py-16 md:py-24 bg-muted/30">
+        {/* Ofertas del Mes - Carrusel en Celular / Grid en PC */}
+        {latestProducts && latestProducts.length > 0 && (
+          <section className="py-10 md:py-16 bg-muted">
+            <div className="container px-4 md:px-6">
+              <Carousel 
+                opts={{ align: "start", loop: true }}
+                className="w-full"
+              >
+                <div className="flex justify-between items-end mb-6 md:mb-8">
+                  <div className="space-y-1">
+                    <h2 className="text-2xl md:text-3xl font-bold text-primary tracking-tight uppercase">OFERTAS DEL MES</h2>
+                    <div className="w-12 h-1 bg-primary/20 mb-2"></div>
+                    <p className="text-muted-foreground text-sm md:text-base">Aprovechá nuestros precios especiales</p>
+                  </div>
+                  {/* Desktop arrows beside the title */}
+                  <div className="hidden md:flex gap-4">
+                    <CarouselPrevious className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
+                    <CarouselNext className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
+                  </div>
+                </div>
+                
+                <CarouselContent className="md:grid md:grid-cols-4 md:gap-8 md:ml-0">
+                  {latestProducts.map((product) => (
+                    <CarouselItem key={product.id} className="basis-full md:basis-auto md:p-0">
+                      <ProductCard product={product} />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                
+                {/* Mobile indicators/arrows centered below */}
+                <div className="flex md:hidden justify-center gap-4 mt-8">
+                  <CarouselPrevious className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
+                  <CarouselNext className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
+                </div>
+              </Carousel>
+            </div>
+          </section>
+        )}
+
+        {/* Más Vendidos - Fondo Blanco */}
+        {featuredProducts && featuredProducts.length > 0 && (
+          <section className="py-10 md:py-16 bg-white">
+            <div className="container px-4 md:px-6">
+              <div className="text-left mb-6 md:mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-1 text-primary tracking-tight uppercase">MÁS VENDIDOS</h2>
+                <div className="w-12 h-1 bg-primary/20 mb-2"></div>
+                <p className="text-muted-foreground text-base leading-relaxed max-w-2xl">
+                  Los favoritos de nuestra comunidad para resultados garantizados.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                {featuredProducts.slice().reverse().map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Sobre el Consultorio - Fondo Crema Hueso (Separador) */}
+        <section className="py-12 md:py-16 bg-muted border-y border-primary/10">
           <div className="container px-4 md:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Link
-                href="/productos?category=Facial"
-                className="group relative overflow-hidden rounded-lg bg-primary/5 p-8 md:p-12 hover:bg-primary/10 transition-colors"
-              >
-                <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">Productos Faciales</h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  Cuida tu rostro con nuestros productos especializados
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+              <div className="relative aspect-video md:aspect-[4/3] overflow-hidden rounded-2xl shadow-xl">
+                <Image
+                  src="/tu_momento.jpeg"
+                  alt="Tratamiento Profesional C427"
+                  fill
+                  className="object-cover transition-transform duration-700 hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-primary/5 mix-blend-multiply"></div>
+              </div>
+              <div className="text-left space-y-4">
+                <h2 className="text-3xl md:text-5xl font-bold text-primary leading-tight tracking-tight">
+                  TU MOMENTO DE <br /> BIENESTAR
+                </h2>
+                <div className="w-16 h-1 bg-primary/30"></div>
+                <p className="text-base md:text-lg text-muted-foreground leading-relaxed font-light">
+                  En <strong>C427</strong>, fusionamos la excelencia médica con la calidez personalizada. Nuestro consultorio es un espacio diseñado para tu renovación integral, donde cada tratamiento es aplicado con rigor científico y la última tecnología dermocosmética.
                 </p>
-                <span className="inline-flex items-center text-primary font-medium group-hover:gap-2 transition-all">
-                  Explorar
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </span>
-              </Link>
-              <Link
-                href="/productos?category=Corporal"
-                className="group relative overflow-hidden rounded-lg bg-accent/5 p-8 md:p-12 hover:bg-accent/10 transition-colors"
-              >
-                <h3 className="font-serif text-2xl md:text-3xl font-bold mb-3">Productos Corporales</h3>
-                <p className="text-muted-foreground mb-4 leading-relaxed">
-                  Productos para el cuidado integral de tu cuerpo
-                </p>
-                <span
-                  className="inline-flex items-center font-medium group-hover:gap-2 transition-all"
-                  style={{ color: "oklch(0.65 0.15 85)" }}
-                >
-                  Explorar
-                  <ArrowRight className="ml-1 h-4 w-4" />
-                </span>
-              </Link>
+                <Button asChild className="bg-primary text-white hover:bg-primary/90 px-6 py-5 text-base rounded-full transition-all hover:scale-105">
+                  <Link href="/diagnostico">Diagnóstico</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
+
+        {/* Testimonios */}
+        <Testimonials
+          userDisplayName={profile?.full_name || profile?.email || null}
+          userId={user?.id || null}
+        />
+
+        <Newsletter />
       </main>
 
       <Footer />

@@ -1,17 +1,13 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Playfair_Display, Inter } from "next/font/google"
+import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { CartProvider } from "@/lib/cart-context"
 import { Toaster } from "@/components/ui/toaster"
+import { WhatsAppButton } from "@/components/whatsapp-button"
+import ChatIA from "@/components/chatia"
 import "./globals.css"
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-})
 
 const inter = Inter({
   subsets: ["latin"],
@@ -35,14 +31,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`font-sans ${inter.variable} ${playfair.variable}`}>
+      <body className={`font-sans ${inter.variable}`}>
         <CartProvider>
           <Suspense fallback={null}>{children}</Suspense>
           <Toaster />
+          <ChatIA />
+          <WhatsAppButton />
         </CartProvider>
         <Analytics />
       </body>
     </html>
   )
 }
-    

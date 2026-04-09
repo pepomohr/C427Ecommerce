@@ -1,49 +1,76 @@
 // lib/actions/product-actions.ts
-
 "use server" 
 
-import { createClient } from '@/lib/supabase/server'; 
-import { revalidatePath } from 'next/cache';
+import { createClient } from '@supabase/supabase-js';
 
-// Tipado necesario para el frontend
+// Cargamos las variables de entorno
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+// Definimos la interfaz para que TypeScript no chille
 interface ProductDetail {
   id: string;
   name: string;
   price: number;
   stock: number;
   image_url: string;
-  category: string;
+  is_active?: boolean;
+  tags?: string[];
 }
 
+/**
+ * Busca los productos específicos para mostrar en el resultado del Quiz.
+ * Se eliminó la columna 'category' porque no existe en la tabla de Supabase.
+ */
 export async function getProductsForQuiz(productIds: string[]): Promise<ProductDetail[]> {
   try {
-    if (!productIds || productIds.length === 0) {
-      console.error("Lista de IDs vacía. No se puede consultar la DB.");
+    // 1. Limpieza de IDs recibidos
+    const cleanIds = (productIds || [])
+      .filter(id => id && typeof id === 'string' && id.trim().length > 0)
+      .map(id => id.trim());
+
+    if (cleanIds.length === 0) {
+      console.warn('[getProductsForQuiz] No se pasaron IDs válidos.');
       return [];
     }
 
-    // EL FIX FINAL: AWAIT para que el cliente de Supabase se inicialice
-    const supabase = await createClient(); 
+    // 2. Inicialización del cliente de Supabase
+    const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    // 1. Consulta a la base de datos
+    // 3. Consulta a la base de datos (Sin la columna 'category' que daba error 42703)
     const { data, error } = await supabase
       .from('products') 
-      .select('id, name, price, stock, image_url, category') 
-      .in('id', productIds); 
+      .select('id, name, price, stock, image_url, is_active, tags') 
+      .in('id', cleanIds);
 
+    // 4. Manejo de errores de Supabase
     if (error) {
-      console.error('SERVER ACTION ERROR: Supabase Fallo. Mensaje:', error.message);
+      console.error('[getProductsForQuiz] Error de Postgres:', error.message);
       return [];
     }
 
-    // DEBUG: Muestra lo encontrado antes de devolverlo
-    console.log('IDs Buscados:', productIds.length); 
-    console.log('Productos encontrados en DB:', data.length); 
+    if (!data) return [];
 
-    return data as ProductDetail[];
+    // 5. Filtro de seguridad por si hay productos desactivados
+    const result = data.filter(p => p.is_active !== false);
 
-  } catch (error) {
-    console.error('Error general en Server Action:', error);
+    // 6. Logs de Debugging para David (Mirá la terminal de VS Code)
+    console.log(`\n--- 🧪 DEBUG QUIZ C427 ---`);
+    console.log(`Solicitados: ${cleanIds.length}`);
+    console.log(`Encontrados en DB: ${data.length}`);
+    console.log(`Activos para mostrar: ${result.length}`);
+    
+    if (data.length < cleanIds.length) {
+      const encontrados = data.map(d => d.id);
+      const faltantes = cleanIds.filter(id => !encontrados.includes(id));
+      console.warn("⚠️ IDs QUE NO EXISTEN EN TU SUPABASE:", faltantes);
+    }
+    console.log(`---------------------------\n`);
+
+    return result as ProductDetail[];
+
+  } catch (error: any) {
+    console.error('[getProductsForQuiz] Error Fatal en el Servidor:', error);
     return [];
   }
 }

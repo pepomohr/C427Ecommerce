@@ -4,9 +4,12 @@ export interface Product {
   description: string | null
   price: number
   stock: number
-  category: "Facial" | "Corporal"
+  category?: string | null // Mantenemos como opcional por compatibilidad
+  tags: string[] // Nueva columna array real
   image_url: string | null
   is_active: boolean
+  usage_mode?: string | null
+  usage_results?: string | null
   created_at: string
   updated_at: string
 }

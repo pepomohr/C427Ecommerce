@@ -9,6 +9,7 @@ import { ShoppingBag, Trash2, Plus, Minus } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useCart } from "@/lib/cart-context"
+import { AIAdvisor } from "@/components/ai-advisor"
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice, clearCart } = useCart()
@@ -49,11 +50,13 @@ export default function CartPage() {
       <main className="flex-1">
         <div className="container px-4 md:px-6 py-8 md:py-12">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold">Carrito de Compras</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-primary">Carrito de Compras</h1>
             <Button variant="ghost" onClick={clearCart} className="text-destructive hover:text-destructive">
               Vaciar carrito
             </Button>
           </div>
+
+          <AIAdvisor />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
@@ -64,12 +67,12 @@ export default function CartPage() {
                     <div className="flex gap-4">
                       {/* Product Image */}
                       <Link href={`/productos/${item.product.id}`} className="flex-shrink-0">
-                        <div className="relative w-24 h-24 rounded-md overflow-hidden bg-muted">
+                        <div className="relative w-24 h-24 rounded-md overflow-hidden bg-muted/20 flex items-center justify-center p-2">
                           <Image
                             src={item.product.image_url || "/placeholder.svg?height=200&width=200"}
                             alt={item.product.name}
                             fill
-                            className="object-cover"
+                            className="object-contain"
                           />
                         </div>
                       </Link>
