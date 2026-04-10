@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { Instagram, Mail, Clock, Truck, ShieldCheck, HeadphonesIcon } from "lucide-react"
+import { Instagram, Mail, Truck, ShieldCheck, HeadphonesIcon } from "lucide-react"
 
 export function Footer() {
   return (
@@ -88,18 +88,10 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Contact & Hours */}
+          {/* Contact */}
           <div>
-            <h4 className="text-lg text-primary mb-6"></h4>
+            <h4 className="text-lg text-primary mb-6">Contacto</h4>
             <div className="space-y-4 text-sm text-muted-foreground">
-              <div className="flex gap-3">
-                <Clock className="h-5 w-5 text-primary flex-shrink-0" />
-                <div>
-                  <p className="font-semibold text-foreground"></p>
-                  <p className="text-xs"></p>
-                  <p className="text-xs"></p>
-                </div>
-              </div>
               <div className="flex gap-3">
                 <Mail className="h-5 w-5 text-primary flex-shrink-0" />
                 <div>
