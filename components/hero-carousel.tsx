@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Autoplay from "embla-carousel-autoplay"
+import Image from "next/image"
 import {
   Carousel,
   CarouselContent,
@@ -32,26 +33,21 @@ export function HeroCarousel() {
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0">
             
-            {/* Foto vertical recortada para CELU */}
-            <div 
-              className="absolute inset-0 md:hidden"
-              style={{ 
-                backgroundImage: "url('/ofertas_celu.png')",
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center center',
-                backgroundSize: 'cover'
-              }}
+            {/* Foto vertical para CELU */}
+            <Image
+              src="/ofertas_celu.png"
+              alt="Ofertas de Abril - 10% off en transferencia en toda la web - C427 Medicina Estética"
+              fill
+              className="object-cover object-center md:hidden"
+              priority
             />
-
             {/* Foto panorámica para DESKTOP */}
-            <div 
-              className="absolute inset-0 hidden md:block"
-              style={{ 
-                backgroundImage: "url('/ofertas.png')", 
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center center',
-                backgroundSize: 'cover'
-              }}
+            <Image
+              src="/ofertas.png"
+              alt="Ofertas de Abril - 10% off en transferencia en toda la web - C427 Medicina Estética"
+              fill
+              className="object-cover object-center hidden md:block"
+              priority
             />
 
             {/* Overlay */}
@@ -78,14 +74,11 @@ export function HeroCarousel() {
         {/* SLIDE 2: AGENTE IA (Este ya quedó flama con right center) */}
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0 transition-all duration-500">
-            <div 
-              className="absolute inset-0 transition-all duration-500"
-              style={{ 
-                backgroundImage: "url('/asesor_ia.png')", 
-                backgroundPosition: 'right center', // <--- Mantiene al muñeco thumbs-up visible
-                backgroundSize: 'cover',
-                backgroundRepeat: 'no-repeat'
-              }} 
+            <Image
+              src="/asesor_ia.png"
+              alt="Asesor de inteligencia artificial de C427 - Consultá tu rutina de skincare personalizada"
+              fill
+              className="object-cover object-right-center transition-all duration-500"
             />
             
             <div className="absolute inset-0 bg-black/50" />
