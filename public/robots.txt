@@ -2,5 +2,9 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /auth/
+Disallow: /carrito
+Disallow: /checkout
+Disallow: /admin
+Disallow: /perfil
 
 Sitemap: https://c427.com.ar/sitemap.xml
