@@ -78,7 +78,7 @@ export function HeroCarousel() {
               src="/asesor_ia.png"
               alt="Asesor de inteligencia artificial de C427 - Consultá tu rutina de skincare personalizada"
               fill
-              className="object-cover object-center md:object-right"
+              className="object-cover object-right"
             />
 
             <div className="absolute inset-0 bg-black/40 md:bg-black/50" />

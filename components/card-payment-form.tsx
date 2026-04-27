@@ -27,16 +27,25 @@ export function CardPaymentForm({ items, shipping, userId, email, total, onSucce
   const formRef = useRef<any>(null)
 
   useEffect(() => {
+    const publicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY
+    if (!publicKey) {
+      setError("Clave pública de Mercado Pago no configurada (NEXT_PUBLIC_MP_PUBLIC_KEY).")
+      return
+    }
     const script = document.createElement("script")
     script.src = "https://sdk.mercadopago.com/js/v2"
     script.async = true
-    script.onload = () => initMP()
+    script.onload = () => initMP(publicKey)
+    script.onerror = () => setError("No se pudo cargar el SDK de Mercado Pago. Verificá tu conexión.")
     document.body.appendChild(script)
-    return () => { document.body.removeChild(script) }
+    return () => {
+      if (document.body.contains(script)) document.body.removeChild(script)
+    }
   }, [])
 
-  function initMP() {
-    const mp = new window.MercadoPago(process.env.NEXT_PUBLIC_MP_PUBLIC_KEY, { locale: "es-AR" })
+  function initMP(publicKey: string) {
+    try {
+    const mp = new window.MercadoPago(publicKey, { locale: "es-AR" })
     const cardForm = mp.cardForm({
       amount: String(total),
       iframe: true,
@@ -91,6 +100,9 @@ export function CardPaymentForm({ items, shipping, userId, email, total, onSucce
       },
     })
     formRef.current = cardForm
+    } catch (e: any) {
+      setError("Error al inicializar el formulario de pago: " + (e?.message ?? "error desconocido"))
+    }
   }
 
   return (
