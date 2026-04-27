@@ -95,8 +95,11 @@ export async function POST(req: NextRequest) {
       init_point: result.init_point,
       order_id: order.id,
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error en create-preference:", error)
-    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 })
+    return NextResponse.json({
+      error: error?.message ?? "Error interno del servidor",
+      detail: error?.cause ?? error?.toString() ?? null
+    }, { status: 500 })
   }
 }

@@ -79,7 +79,7 @@ export default function CheckoutPage() {
       const data = await res.json()
 
       if (!res.ok || !data.init_point) {
-        setError(data.error ?? "Error al iniciar el pago. Intentá de nuevo.")
+        setError(`${data.error ?? "Error al iniciar el pago"}${data.detail ? ` — ${data.detail}` : ""}`)
         setIsProcessing(false)
         return
       }
