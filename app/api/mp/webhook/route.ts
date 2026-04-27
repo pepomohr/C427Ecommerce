@@ -4,18 +4,25 @@ import { NextRequest, NextResponse } from "next/server"
 
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
 
-// Cliente admin de Supabase para el webhook (bypasa RLS)
-function getAdminClient() {
+// Cliente admin del ecommerce (bypasa RLS)
+function getEcommerceClient() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
 }
 
+// Cliente admin del Sistema C427 (para registrar la venta)
+function getSistemaClient() {
+  return createClient(
+    process.env.SISTEMA_SUPABASE_URL!,
+    process.env.SISTEMA_SERVICE_ROLE_KEY!
+  )
+}
+
 async function notificarNico(order: any) {
   const phone = process.env.NICO_PHONE
   const apiKey = process.env.CALLMEBOT_API_KEY
-
   if (!phone || !apiKey) return
 
   const productos = order.order_items
@@ -41,11 +48,51 @@ async function notificarNico(order: any) {
   }
 }
 
+// Registra el ingreso del ecommerce en el Sistema C427
+async function registrarEnSistema(order: any, paymentMethod: string) {
+  if (!process.env.SISTEMA_SUPABASE_URL || !process.env.SISTEMA_SERVICE_ROLE_KEY) return
+
+  try {
+    const sistema = getSistemaClient()
+
+    // Mapear método de pago de MP al formato del Sistema
+    const metodoPago = (() => {
+      if (paymentMethod?.includes("credit")) return "tarjeta"
+      if (paymentMethod?.includes("debit")) return "tarjeta"
+      if (paymentMethod?.includes("account_money")) return "transferencia"
+      return "transferencia"
+    })()
+
+    // Armar los items en el formato del Sistema
+    const items = order.order_items?.map((i: any) => ({
+      name: i.product?.name ?? "Producto ecommerce",
+      quantity: i.quantity,
+      price: Number(i.price ?? 0),
+      total: Number(i.price ?? 0) * i.quantity,
+      type: "product",
+    })) ?? []
+
+    await sistema.from("sales").insert({
+      items,
+      total: Number(order.total),
+      payment_method: metodoPago,
+      source: "ecommerce",
+      type: "ecommerce",
+      observations: `Pedido web #${String(order.id).slice(0, 8).toUpperCase()} — ${order.shipping_address?.fullName ?? "Cliente web"}`,
+      date: new Date().toISOString(),
+    })
+
+    console.log("✅ Venta registrada en Sistema C427")
+  } catch (err) {
+    // No interrumpir el flujo si el Sistema falla
+    console.error("Error registrando en Sistema C427:", err)
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    // MP envía diferentes tipos de notificaciones
     if (body.type !== "payment") {
       return NextResponse.json({ ok: true })
     }
@@ -57,7 +104,6 @@ export async function POST(req: NextRequest) {
     const payment = new Payment(mp)
     const paymentData = await payment.get({ id: paymentId })
 
-    // Solo procesar pagos aprobados
     if (paymentData.status !== "approved") {
       return NextResponse.json({ ok: true })
     }
@@ -65,9 +111,9 @@ export async function POST(req: NextRequest) {
     const orderId = paymentData.external_reference
     if (!orderId) return NextResponse.json({ ok: true })
 
-    const supabase = getAdminClient()
+    const supabase = getEcommerceClient()
 
-    // Actualizar estado del pedido a "paid"
+    // Actualizar orden a pagada en el ecommerce
     const { data: order, error } = await supabase
       .from("orders")
       .update({
@@ -76,7 +122,7 @@ export async function POST(req: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", orderId)
-      .select("*, order_items(quantity, product:products(name))")
+      .select("*, order_items(quantity, price, product:products(name)), shipping_address")
       .single()
 
     if (error || !order) {
@@ -84,13 +130,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    // Notificar a Nico por WhatsApp
-    await notificarNico(order)
+    // Ejecutar en paralelo: notificar a Nico + registrar en Sistema
+    await Promise.allSettled([
+      notificarNico(order),
+      registrarEnSistema(order, paymentData.payment_type_id ?? ""),
+    ])
 
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("Error en webhook MP:", error)
-    // Siempre devolver 200 para que MP no reintente
     return NextResponse.json({ ok: true })
   }
 }
