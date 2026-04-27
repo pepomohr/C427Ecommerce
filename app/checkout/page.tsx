@@ -273,14 +273,7 @@ export default function CheckoutPage() {
                           </div>
                         ) : (
                           <div className="flex items-center gap-2">
-                            <Image
-                              src="/mercado-pago-logo.png"
-                              alt="Mercado Pago"
-                              width={22}
-                              height={22}
-                              className="object-contain brightness-0 invert"
-                            />
-                            Continuar con Mercado Pago
+                            Continuar con Mercado Pago →
                           </div>
                         )}
                       </Button>

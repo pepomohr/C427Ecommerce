@@ -56,10 +56,10 @@ export function HeroCarousel() {
             <div className="container relative z-10 pl-6 pr-4 md:px-6">
               <div className="max-w-xl text-left text-white">
                 <h1 className="text-2xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
-                  OFERTAS DE ABRIL
+                  50% OFF EN TODA LA WEB
                 </h1>
                 <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[250px] md:max-w-md">
-                  10% off en transferencia en toda la web.
+                  Válido hasta el 30 de abril.
                 </p>
                 <div className="flex gap-3 justify-start">
                   <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl bg-primary text-white border-none tracking-widest font-bold uppercase hover:bg-primary/90">

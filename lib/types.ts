@@ -3,6 +3,7 @@ export interface Product {
   name: string
   description: string | null
   price: number
+  original_price: number | null
   stock: number
   category?: string | null // Mantenemos como opcional por compatibilidad
   tags: string[] // Nueva columna array real

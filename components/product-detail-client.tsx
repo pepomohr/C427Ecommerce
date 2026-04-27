@@ -67,10 +67,20 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               {isGiftCard ? selectedOption.label : product.name}
             </h1>
             
-            <div className="flex items-baseline gap-3 mb-4">
+            <div className="flex items-baseline gap-3 mb-4 flex-wrap">
               <p className="text-3xl md:text-4xl font-bold text-primary tracking-tighter">
                 ${currentPrice.toLocaleString("es-AR")}
               </p>
+              {product.original_price && !isGiftCard && (
+                <>
+                  <p className="text-lg text-muted-foreground line-through font-normal">
+                    ${product.original_price.toLocaleString("es-AR")}
+                  </p>
+                  <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    50% OFF
+                  </span>
+                </>
+              )}
             </div>
 
             {isGiftCard && (

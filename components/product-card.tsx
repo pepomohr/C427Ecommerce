@@ -60,10 +60,20 @@ export function ProductCard({ product }: ProductCardProps) {
         <p className="text-[11px] sm:text-sm text-muted-foreground line-clamp-1 mb-2 sm:mb-4 leading-relaxed font-light tracking-wide">
           {product.description}
         </p>
-        <div className="flex items-end gap-2 sm:gap-3 mt-auto">
+        <div className="flex items-end gap-2 sm:gap-3 mt-auto flex-wrap">
           <p className="text-lg sm:text-2xl font-bold text-primary group-hover:text-primary/80 transition-colors tracking-tighter">
             ${product.price.toLocaleString("es-AR")}
           </p>
+          {product.original_price && (
+            <>
+              <p className="text-sm sm:text-base text-muted-foreground line-through font-normal">
+                ${product.original_price.toLocaleString("es-AR")}
+              </p>
+              <Badge className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                50% OFF
+              </Badge>
+            </>
+          )}
         </div>
       </CardContent>
 

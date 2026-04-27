@@ -107,7 +107,7 @@ export function Header({ isAuthenticated, isAdmin }: HeaderProps) {
     <header className="sticky top-0 z-50 w-full flex flex-col bg-background/95 backdrop-blur-md border-b border-border/40 shadow-sm">
       {/* Banner Promo */}
       <div className="bg-primary text-primary-foreground py-2 px-4 text-center text-[10px] md:text-sm font-medium tracking-wide">
-        10% de descuento en toda la web abonando por transferencia (válido todo el mes de abril)
+        🔥 50% OFF en toda la web — válido hasta el 30 de abril
       </div>
 
       {/* Main Header Row */}
