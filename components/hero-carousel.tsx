@@ -71,17 +71,17 @@ export function HeroCarousel() {
           </section>
         </CarouselItem>
 
-        {/* SLIDE 2: AGENTE IA (Este ya quedó flama con right center) */}
+        {/* SLIDE 2: AGENTE IA */}
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0 transition-all duration-500">
             <Image
               src="/asesor_ia.png"
               alt="Asesor de inteligencia artificial de C427 - Consultá tu rutina de skincare personalizada"
               fill
-              className="object-cover object-right-center transition-all duration-500"
+              className="object-cover object-center md:object-right"
             />
-            
-            <div className="absolute inset-0 bg-black/50" />
+
+            <div className="absolute inset-0 bg-black/40 md:bg-black/50" />
 
             <div className="container relative z-10 pl-6 pr-4 md:px-6 text-white">
               <div className="max-w-xl text-left">

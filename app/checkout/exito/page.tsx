@@ -5,6 +5,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { ClearCartOnLoad } from "@/components/clear-cart-on-load"
 import Link from "next/link"
 import { CheckCircle, Package } from "lucide-react"
 
@@ -35,6 +36,8 @@ async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Limpia el carrito cuando el pago fue exitoso */}
+      <ClearCartOnLoad />
       <Header isAuthenticated={true} isAdmin={profile?.role === "admin"} />
 
       <main className="flex-1">

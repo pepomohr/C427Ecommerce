@@ -270,7 +270,7 @@ export function Header({ isAuthenticated, isAdmin }: HeaderProps) {
               {/* Diagnóstico destacado */}
               <NavigationMenuItem>
                 <NavigationMenuLink asChild className={`${navigationMenuTriggerStyle()} bg-primary/10 text-primary font-bold h-9 px-4 text-xs rounded-full hover:bg-primary hover:text-white transition-all uppercase`}>
-                  <Link href="/diagnostico">Test Diagnóstico ✨</Link>
+                  <Link href="/diagnostico">Diagnóstico</Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
             </NavigationMenuList>
