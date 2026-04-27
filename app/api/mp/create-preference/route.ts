@@ -1,8 +1,16 @@
 import { MercadoPagoConfig, Preference } from "mercadopago"
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@supabase/supabase-js"
 import { NextRequest, NextResponse } from "next/server"
 
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
+
+// Usamos service role para bypasear RLS en la creación de pedidos
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
     }
 
-    const supabase = await createClient()
+    const supabase = getSupabase()
 
     // Calcular total
     const total = items.reduce(
