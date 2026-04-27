@@ -65,20 +65,28 @@ async function registrarEnSistema(order: any, paymentMethod: string) {
 
     // Armar los items en el formato del Sistema
     const items = order.order_items?.map((i: any) => ({
-      name: i.product?.name ?? "Producto ecommerce",
+      itemId: i.product?.id ?? "web",
+      itemName: i.product?.name ?? "Producto ecommerce",
       quantity: i.quantity,
       price: Number(i.price ?? 0),
+      priceCashReference: Number(i.price ?? 0),
       total: Number(i.price ?? 0) * i.quantity,
       type: "product",
+      soldBy: "recepcion",
     })) ?? []
+
+    const customerName = order.shipping_address?.fullName ?? "Cliente web"
+    const pedidoId = String(order.id).slice(0, 8).toUpperCase()
 
     await sistema.from("sales").insert({
       items,
       total: Number(order.total),
       payment_method: metodoPago,
-      source: "ecommerce",
-      type: "ecommerce",
-      observations: `Pedido web #${String(order.id).slice(0, 8).toUpperCase()} — ${order.shipping_address?.fullName ?? "Cliente web"}`,
+      source: "web",       // → muestra badge "Web C427" en el Sistema
+      type: "direct",      // → cuenta como venta directa
+      patient_name: customerName,  // → aparece en columna PACIENTE
+      processed_by: "recepcion",
+      observations: `Pedido web #${pedidoId} | Tel: ${order.shipping_address?.phone ?? ""} | ${order.shipping_address?.address ?? ""}, ${order.shipping_address?.city ?? ""}`,
       date: new Date().toISOString(),
     })
 
