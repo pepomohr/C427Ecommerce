@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from "next/server"
 
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
 
-// Usamos service role para bypasear RLS en la creación de pedidos
 function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,30 +21,26 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabase()
 
-    // Calcular total
     const total = items.reduce(
       (sum: number, item: any) => sum + item.product.price * item.quantity,
       0
     )
 
-    // Crear pedido pendiente en Supabase
+    // PASO 1: Crear pedido en Supabase
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .insert({
-        user_id: userId,
-        total,
-        status: "pending",
-        shipping_address: shipping,
-      })
+      .insert({ user_id: userId, total, status: "pending", shipping_address: shipping })
       .select()
       .single()
 
     if (orderError || !order) {
-      console.error("Error creando orden:", orderError)
-      return NextResponse.json({ error: "Error al crear el pedido" }, { status: 500 })
+      return NextResponse.json({
+        error: `Error Supabase (orden): ${orderError?.message ?? "sin respuesta"}`,
+        detail: orderError?.hint ?? orderError?.details ?? null
+      }, { status: 500 })
     }
 
-    // Crear los items del pedido
+    // PASO 2: Crear items del pedido
     const { error: itemsError } = await supabase.from("order_items").insert(
       items.map((item: any) => ({
         order_id: order.id,
@@ -56,29 +51,23 @@ export async function POST(req: NextRequest) {
     )
 
     if (itemsError) {
-      console.error("Error creando items:", itemsError)
+      return NextResponse.json({
+        error: `Error Supabase (items): ${itemsError?.message}`,
+        detail: itemsError?.hint ?? itemsError?.details ?? null
+      }, { status: 500 })
     }
 
-    // Crear preferencia en Mercado Pago
+    // PASO 3: Crear preferencia en Mercado Pago
     const preference = new Preference(mp)
     const result = await preference.create({
       body: {
         items: items.map((item: any) => ({
-          id: item.product.id,
+          id: String(item.product.id),
           title: item.product.name,
-          quantity: item.quantity,
+          quantity: Number(item.quantity),
           unit_price: Number(item.product.price),
           currency_id: "ARS",
-          picture_url: item.product.image_url ?? undefined,
         })),
-        payer: {
-          name: shipping?.fullName ?? "",
-          phone: { number: shipping?.phone ?? "" },
-          address: {
-            street_name: shipping?.address ?? "",
-            zip_code: shipping?.postalCode ?? "",
-          },
-        },
         back_urls: {
           success: `https://c427.com.ar/checkout/exito?order=${order.id}`,
           failure: `https://c427.com.ar/checkout?error=pago_fallido`,
@@ -87,19 +76,23 @@ export async function POST(req: NextRequest) {
         auto_return: "approved",
         notification_url: `https://c427.com.ar/api/mp/webhook`,
         external_reference: order.id,
-        statement_descriptor: "C427 MEDICINA ESTETICA",
+        statement_descriptor: "C427 ESTETICA",
       },
     })
 
-    return NextResponse.json({
-      init_point: result.init_point,
-      order_id: order.id,
-    })
+    if (!result.init_point) {
+      return NextResponse.json({
+        error: "Mercado Pago no devolvió el link de pago",
+        detail: JSON.stringify(result)
+      }, { status: 500 })
+    }
+
+    return NextResponse.json({ init_point: result.init_point, order_id: order.id })
+
   } catch (error: any) {
-    console.error("Error en create-preference:", error)
     return NextResponse.json({
-      error: error?.message ?? "Error interno del servidor",
-      detail: error?.cause ?? error?.toString() ?? null
+      error: error?.message ?? "Error desconocido",
+      detail: error?.cause?.toString() ?? error?.toString() ?? null
     }, { status: 500 })
   }
 }
