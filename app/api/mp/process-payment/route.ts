@@ -1,6 +1,7 @@
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 import { NextRequest, NextResponse } from "next/server"
+import { sendOrderConfirmation, sendOrderNotificationToNico } from "@/lib/emails"
 
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
 
@@ -13,7 +14,7 @@ function getSupabase() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { token, installments, paymentMethodId, issuerId, items, shipping, userId, email } = await req.json()
+    const { token, installments, paymentMethodId, issuerId, identificationType, identificationNumber, items, shipping, userId, email } = await req.json()
 
     if (!token || !userId || !items?.length) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
@@ -60,6 +61,9 @@ export async function POST(req: NextRequest) {
           email,
           first_name: shipping?.fullName?.split(" ")[0] ?? "",
           last_name: shipping?.fullName?.split(" ").slice(1).join(" ") ?? "",
+          identification: identificationType && identificationNumber
+            ? { type: identificationType, number: identificationNumber }
+            : undefined,
         },
         external_reference: order.id,
         notification_url: `https://c427.com.ar/api/mp/webhook`,
@@ -67,11 +71,32 @@ export async function POST(req: NextRequest) {
     })
 
     if (result.status === "approved") {
-      // Actualizar orden a pagada
       await supabase
         .from("orders")
         .update({ status: "paid", payment_id: String(result.id) })
         .eq("id", order.id)
+
+      // Enviar emails en paralelo (sin bloquear la respuesta)
+      const emailData = {
+        orderId: order.id,
+        customerName: shipping?.fullName ?? "Cliente",
+        customerEmail: email ?? "",
+        items: items.map((i: any) => ({
+          name: i.product?.name ?? "Producto",
+          quantity: i.quantity,
+          price: Number(i.product?.price ?? 0),
+        })),
+        total: Number(total),
+        shipping: {
+          address: shipping?.address,
+          city: shipping?.city,
+          phone: shipping?.phone,
+        },
+      }
+      Promise.allSettled([
+        sendOrderConfirmation(emailData),
+        sendOrderNotificationToNico(emailData),
+      ])
 
       return NextResponse.json({ status: "approved", order_id: order.id })
     }

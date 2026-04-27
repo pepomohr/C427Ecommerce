@@ -67,13 +67,14 @@ export function CardPaymentForm({ items, shipping, userId, email, total, onSucce
           event.preventDefault()
           setIsProcessing(true)
           setError(null)
-          const { paymentMethodId, issuerId, cardholderEmail, token, installments } = cardForm.getCardFormData()
+          const { paymentMethodId, issuerId, cardholderEmail, token, installments, identificationType, identificationNumber } = cardForm.getCardFormData()
           try {
             const res = await fetch("/api/mp/process-payment", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 token, installments, paymentMethodId, issuerId,
+                identificationType, identificationNumber,
                 items, shipping, userId,
                 email: cardholderEmail || email,
               }),

@@ -1,6 +1,7 @@
 import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 import { NextRequest, NextResponse } from "next/server"
+import { sendOrderConfirmation, sendOrderNotificationToNico } from "@/lib/emails"
 
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
 
@@ -138,10 +139,30 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    // Ejecutar en paralelo: notificar a Nico + registrar en Sistema
+    // Preparar datos de email
+    const emailData = {
+      orderId: order.id,
+      customerName: order.shipping_address?.fullName ?? "Cliente",
+      customerEmail: order.payer_email ?? "",
+      items: order.order_items?.map((i: any) => ({
+        name: i.product?.name ?? "Producto",
+        quantity: i.quantity,
+        price: Number(i.price ?? 0),
+      })) ?? [],
+      total: Number(order.total),
+      shipping: {
+        address: order.shipping_address?.address,
+        city: order.shipping_address?.city,
+        phone: order.shipping_address?.phone,
+      },
+    }
+
+    // Ejecutar en paralelo: emails + WhatsApp + registrar en Sistema
     await Promise.allSettled([
       notificarNico(order),
       registrarEnSistema(order, paymentData.payment_type_id ?? ""),
+      sendOrderConfirmation({ ...emailData, customerEmail: paymentData.payer?.email ?? order.payer_email ?? "" }),
+      sendOrderNotificationToNico(emailData),
     ])
 
     return NextResponse.json({ ok: true })
