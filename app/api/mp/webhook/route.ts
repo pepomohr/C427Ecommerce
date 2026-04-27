@@ -72,7 +72,7 @@ async function registrarEnSistema(order: any, paymentMethod: string) {
       priceCashReference: Number(i.price ?? 0),
       total: Number(i.price ?? 0) * i.quantity,
       type: "product",
-      soldBy: "recepcion",
+      soldBy: null,
     })) ?? []
 
     const customerName = order.shipping_address?.fullName ?? "Cliente web"
@@ -85,7 +85,7 @@ async function registrarEnSistema(order: any, paymentMethod: string) {
       source: "web",       // → muestra badge "Web C427" en el Sistema
       type: "direct",      // → cuenta como venta directa
       patient_name: customerName,  // → aparece en columna PACIENTE
-      processed_by: "recepcion",
+      processed_by: null,
       observations: `Pedido web #${pedidoId} | Tel: ${order.shipping_address?.phone ?? ""} | ${order.shipping_address?.address ?? ""}, ${order.shipping_address?.city ?? ""}`,
       date: new Date().toISOString(),
     })
