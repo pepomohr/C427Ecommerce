@@ -1,143 +1,122 @@
 /**
- * SCRIPT DE MIGRACIÓN DE IMÁGENES
- * =================================
- * Copia las imágenes del Storage del e-commerce al Storage del Sistema C427.
- * Actualiza los image_url en la tabla products del Sistema.
+ * MIGRACIÓN DE IMÁGENES — E-commerce → Sistema C427
+ * ===================================================
+ * Las imágenes del Storage del e-commerce son públicas,
+ * así que solo necesitás la Service Role Key del SISTEMA.
  *
- * CÓMO USAR:
- *   1. Copiá las variables de entorno abajo
- *   2. Corré: node scripts/migrate-images-to-sistema.mjs
+ * CÓMO USAR (una sola vez):
+ *   1. Abrí terminal en la carpeta del ecommerce
+ *   2. set SISTEMA_SERVICE_ROLE_KEY=eyJhbGci...la del proyecto hwkhcwdqicgnvitlcmwr
+ *   3. node scripts/migrate-images-to-sistema.mjs
  */
 
 import { createClient } from "@supabase/supabase-js"
 
-// ── Config ────────────────────────────────────────────────────────────────────
-// E-commerce (origen)
-const ECOMMERCE_URL = "https://zdqrsoqashegymvqbkmm.supabase.co"
-const ECOMMERCE_KEY = process.env.ECOMMERCE_SERVICE_ROLE_KEY // service role del e-commerce
+const SISTEMA_URL = "https://hwkhcwdqicgnvitlcmwr.supabase.co"
+const SISTEMA_KEY = process.env.SISTEMA_SERVICE_ROLE_KEY
 
-// Sistema (destino)
-const SISTEMA_URL   = "https://hwkhcwdqicgnvitlcmwr.supabase.co"
-const SISTEMA_KEY   = process.env.SISTEMA_SERVICE_ROLE_KEY // service role del sistema
-
-// Nombre del bucket de imágenes en cada proyecto (ajustar si difiere)
-const BUCKET_ORIGEN  = "products"
-const BUCKET_DESTINO = "products"
-// ─────────────────────────────────────────────────────────────────────────────
-
-if (!ECOMMERCE_KEY || !SISTEMA_KEY) {
-  console.error("❌  Falta ECOMMERCE_SERVICE_ROLE_KEY o SISTEMA_SERVICE_ROLE_KEY en el entorno.")
-  console.error("    Exportalas antes de correr el script:")
-  console.error("    set ECOMMERCE_SERVICE_ROLE_KEY=xxx && set SISTEMA_SERVICE_ROLE_KEY=yyy")
+if (!SISTEMA_KEY) {
+  console.error("")
+  console.error("❌  Falta SISTEMA_SERVICE_ROLE_KEY")
+  console.error("    Corré primero:")
+  console.error('    set SISTEMA_SERVICE_ROLE_KEY=eyJhbGci...')
+  console.error("")
   process.exit(1)
 }
 
-const ecommerce = createClient(ECOMMERCE_URL, ECOMMERCE_KEY)
-const sistema   = createClient(SISTEMA_URL,   SISTEMA_KEY)
+const sistema = createClient(SISTEMA_URL, SISTEMA_KEY)
 
 async function ensureBucket() {
   const { data: buckets } = await sistema.storage.listBuckets()
-  const exists = buckets?.some(b => b.name === BUCKET_DESTINO)
+  const exists = buckets?.some(b => b.name === "products")
   if (!exists) {
-    const { error } = await sistema.storage.createBucket(BUCKET_DESTINO, { public: true })
+    const { error } = await sistema.storage.createBucket("products", { public: true })
     if (error) throw new Error(`No se pudo crear el bucket: ${error.message}`)
-    console.log(`✅  Bucket "${BUCKET_DESTINO}" creado en Sistema`)
-  } else {
-    console.log(`ℹ️   Bucket "${BUCKET_DESTINO}" ya existe en Sistema`)
+    console.log('✅  Bucket "products" creado en Sistema')
   }
 }
 
-async function migrateImages() {
+async function run() {
   await ensureBucket()
 
-  // Traer todos los productos de Sistema que tienen image_url del e-commerce
+  // Buscar productos en Sistema cuyo image_url apunta al Storage del e-commerce
   const { data: products, error } = await sistema
     .from("products")
     .select("id, name, image_url")
-    .ilike("image_url", `%${ECOMMERCE_URL}%`)
+    .not("image_url", "is", null)
+    .ilike("image_url", "%zdqrsoqashegymvqbkmm%")
 
   if (error) throw new Error(`Error leyendo productos: ${error.message}`)
+
   if (!products?.length) {
-    console.log("✅  No hay imágenes que migrar (no se encontraron URLs del e-commerce).")
+    console.log("")
+    console.log("✅  No hay imágenes para migrar.")
+    console.log("    Los image_url ya no apuntan al e-commerce,")
+    console.log("    o todavía no tienen imagen asignada.")
     return
   }
 
-  console.log(`\n📦  ${products.length} producto(s) con imágenes para migrar:\n`)
+  console.log(`\n📦  ${products.length} imagen(es) para migrar:\n`)
 
-  let migrated = 0
-  let failed   = 0
+  let ok = 0
+  let fail = 0
 
   for (const product of products) {
+    const url = product.image_url
+
     try {
-      const url = product.image_url
-      // Extraer el path dentro del bucket desde la URL pública
-      // URL format: .../storage/v1/object/public/<bucket>/<path>
-      const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)/)
-      if (!match) {
-        console.warn(`  ⚠️  ${product.name}: URL no reconocida → ${url}`)
-        failed++
-        continue
-      }
-      const filePath = match[1]
-      const fileName = filePath.split("/").pop() ?? filePath
+      // 1. Descargar la imagen directamente (el Storage es público, no necesita auth)
+      const res = await fetch(url)
+      if (!res.ok) throw new Error(`HTTP ${res.status} al descargar`)
 
-      // Descargar desde el e-commerce
-      const { data: fileData, error: downloadError } = await ecommerce.storage
-        .from(BUCKET_ORIGEN)
-        .download(filePath)
+      const buffer = await res.arrayBuffer()
+      const contentType = res.headers.get("content-type") || "image/jpeg"
 
-      if (downloadError || !fileData) {
-        console.error(`  ❌  ${product.name}: error descargando → ${downloadError?.message}`)
-        failed++
-        continue
-      }
+      // Nombre de archivo: tomamos la última parte de la URL
+      const fileName = url.split("/").pop()?.split("?")[0] ?? `${product.id}.jpg`
+      const destPath = `sulderm/${fileName}`
 
-      // Subir al Sistema
-      const destPath = `migrated/${fileName}`
+      // 2. Subir al Storage de Sistema
       const { error: uploadError } = await sistema.storage
-        .from(BUCKET_DESTINO)
-        .upload(destPath, fileData, { upsert: true, contentType: fileData.type })
+        .from("products")
+        .upload(destPath, buffer, { contentType, upsert: true })
 
-      if (uploadError) {
-        console.error(`  ❌  ${product.name}: error subiendo → ${uploadError.message}`)
-        failed++
-        continue
-      }
+      if (uploadError) throw new Error(`Error subiendo: ${uploadError.message}`)
 
-      // Obtener URL pública en Sistema
+      // 3. Obtener la URL pública en Sistema
       const { data: { publicUrl } } = sistema.storage
-        .from(BUCKET_DESTINO)
+        .from("products")
         .getPublicUrl(destPath)
 
-      // Actualizar image_url en products
+      // 4. Actualizar image_url en la tabla products
       const { error: updateError } = await sistema
         .from("products")
         .update({ image_url: publicUrl })
         .eq("id", product.id)
 
-      if (updateError) {
-        console.error(`  ❌  ${product.name}: error actualizando DB → ${updateError.message}`)
-        failed++
-        continue
-      }
+      if (updateError) throw new Error(`Error actualizando DB: ${updateError.message}`)
 
       console.log(`  ✅  ${product.name}`)
-      migrated++
+      ok++
+
     } catch (err) {
-      console.error(`  ❌  ${product.name}: error inesperado → ${err.message}`)
-      failed++
+      console.error(`  ❌  ${product.name}: ${err.message}`)
+      fail++
     }
   }
 
-  console.log(`\n🎉  Migración terminada: ${migrated} migradas, ${failed} fallidas\n`)
-  if (failed === 0) {
-    console.log("✅  Podés borrar el proyecto del e-commerce sin perder imágenes.")
+  console.log("")
+  console.log(`🎉  Listo: ${ok} migradas, ${fail} fallidas`)
+  console.log("")
+
+  if (fail === 0) {
+    console.log("✅  Podés borrar el proyecto del e-commerce sin perder ninguna imagen.")
   } else {
     console.log("⚠️   Revisá los errores antes de borrar el proyecto del e-commerce.")
   }
 }
 
-migrateImages().catch(err => {
-  console.error("Error fatal:", err)
+run().catch(err => {
+  console.error("Error fatal:", err.message)
   process.exit(1)
 })
