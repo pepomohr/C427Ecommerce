@@ -1,10 +1,3 @@
-import { createClient } from "@supabase/supabase-js"
-
-// Cliente server-side (service role) para el DB del Sistema C427
-// Usar SOLO en API routes / server components — nunca en el cliente
-export function getSistemaSupabase() {
-  const url = process.env.SISTEMA_SUPABASE_URL
-  const key = process.env.SISTEMA_SERVICE_ROLE_KEY
-  if (!url || !key) throw new Error("SISTEMA_SUPABASE_URL o SISTEMA_SERVICE_ROLE_KEY no configurados")
-  return createClient(url, key)
-}
+// Este módulo ya no es necesario.
+// Todo el e-commerce ahora usa el mismo Supabase que el Sistema C427.
+// El cliente se crea directamente con NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY.

@@ -5,19 +5,11 @@ import { sendOrderConfirmation, sendOrderNotificationToNico } from "@/lib/emails
 
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
 
-// Cliente admin del ecommerce (bypasa RLS)
-function getEcommerceClient() {
+// Un solo cliente — todo en el mismo Supabase (Sistema C427)
+function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
-
-// Cliente admin del Sistema C427 (para registrar la venta)
-function getSistemaClient() {
-  return createClient(
-    process.env.SISTEMA_SUPABASE_URL!,
-    process.env.SISTEMA_SERVICE_ROLE_KEY!
   )
 }
 
@@ -49,84 +41,63 @@ async function notificarNico(order: any) {
   }
 }
 
-// Decrementa el stock de los productos en el Sistema C427
-async function decrementarStockEnSistema(orderItems: any[]) {
-  if (!process.env.SISTEMA_SUPABASE_URL || !process.env.SISTEMA_SERVICE_ROLE_KEY) return
-  try {
-    const sistema = getSistemaClient()
-    for (const item of orderItems) {
-      const productId = item.product_id ?? item.product?.id
-      const qty       = Number(item.quantity ?? 1)
-      if (!productId) continue
-      await sistema.rpc("decrement_stock", { product_id: productId, qty })
-        .then(({ error }) => {
-          if (error) {
-            return sistema
-              .from("products")
-              .select("stock")
-              .eq("id", productId)
-              .single()
-              .then(({ data }) => {
-                if (data) {
-                  return sistema.from("products").update({ stock: Math.max(0, (data.stock ?? 0) - qty) }).eq("id", productId)
-                }
-              })
-          }
-        })
+// Descuenta stock de cada producto en el mismo Supabase
+async function decrementarStock(supabase: ReturnType<typeof getSupabase>, orderItems: any[]) {
+  for (const item of orderItems) {
+    const productId = item.product_id ?? item.product?.id
+    const qty       = Number(item.quantity ?? 1)
+    if (!productId) continue
+
+    const { data } = await supabase
+      .from("products")
+      .select("stock")
+      .eq("id", productId)
+      .single()
+
+    if (data) {
+      await supabase
+        .from("products")
+        .update({ stock: Math.max(0, (data.stock ?? 0) - qty) })
+        .eq("id", productId)
     }
-    console.log("✅ Stock decrementado en Sistema C427 (webhook)")
-  } catch (err) {
-    console.error("Error decrementando stock (webhook):", err)
   }
+  console.log("✅ Stock decrementado")
 }
 
-// Registra el ingreso del ecommerce en el Sistema C427
-async function registrarEnSistema(order: any, paymentMethod: string) {
-  if (!process.env.SISTEMA_SUPABASE_URL || !process.env.SISTEMA_SERVICE_ROLE_KEY) return
+// Registra el ingreso como venta en la tabla sales del Sistema
+async function registrarVenta(supabase: ReturnType<typeof getSupabase>, order: any, paymentMethod: string) {
+  const metodoPago = (() => {
+    if (paymentMethod?.includes("credit")) return "tarjeta"
+    if (paymentMethod?.includes("debit")) return "tarjeta"
+    return "transferencia"
+  })()
 
-  try {
-    const sistema = getSistemaClient()
+  const items = order.order_items?.map((i: any) => ({
+    itemId: i.product?.id ?? i.product_id ?? "web",
+    itemName: i.product?.name ?? "Producto ecommerce",
+    quantity: i.quantity,
+    price: Number(i.price ?? 0),
+    priceCashReference: Number(i.price ?? 0),
+    type: "product",
+    soldBy: null,
+  })) ?? []
 
-    // Mapear método de pago de MP al formato del Sistema
-    const metodoPago = (() => {
-      if (paymentMethod?.includes("credit")) return "tarjeta"
-      if (paymentMethod?.includes("debit")) return "tarjeta"
-      if (paymentMethod?.includes("account_money")) return "transferencia"
-      return "transferencia"
-    })()
+  const customerName = order.shipping_address?.fullName ?? "Cliente web"
+  const pedidoId = String(order.id).slice(0, 8).toUpperCase()
 
-    // Armar los items en el formato del Sistema
-    const items = order.order_items?.map((i: any) => ({
-      itemId: i.product?.id ?? "web",
-      itemName: i.product?.name ?? "Producto ecommerce",
-      quantity: i.quantity,
-      price: Number(i.price ?? 0),
-      priceCashReference: Number(i.price ?? 0),
-      total: Number(i.price ?? 0) * i.quantity,
-      type: "product",
-      soldBy: null,
-    })) ?? []
+  await supabase.from("sales").insert({
+    items,
+    total: Number(order.total),
+    payment_method: metodoPago,
+    source: "web",
+    type: "direct",
+    patient_name: customerName,
+    processed_by: null,
+    observations: `Pedido web #${pedidoId} | Tel: ${order.shipping_address?.phone ?? ""} | ${order.shipping_address?.address ?? ""}, ${order.shipping_address?.city ?? ""}`,
+    date: new Date().toISOString(),
+  })
 
-    const customerName = order.shipping_address?.fullName ?? "Cliente web"
-    const pedidoId = String(order.id).slice(0, 8).toUpperCase()
-
-    await sistema.from("sales").insert({
-      items,
-      total: Number(order.total),
-      payment_method: metodoPago,
-      source: "web",       // → muestra badge "Web C427" en el Sistema
-      type: "direct",      // → cuenta como venta directa
-      patient_name: customerName,  // → aparece en columna PACIENTE
-      processed_by: null,
-      observations: `Pedido web #${pedidoId} | Tel: ${order.shipping_address?.phone ?? ""} | ${order.shipping_address?.address ?? ""}, ${order.shipping_address?.city ?? ""}`,
-      date: new Date().toISOString(),
-    })
-
-    console.log("✅ Venta registrada en Sistema C427")
-  } catch (err) {
-    // No interrumpir el flujo si el Sistema falla
-    console.error("Error registrando en Sistema C427:", err)
-  }
+  console.log("✅ Venta registrada en Sistema C427")
 }
 
 export async function POST(req: NextRequest) {
@@ -140,20 +111,15 @@ export async function POST(req: NextRequest) {
     const paymentId = body.data?.id
     if (!paymentId) return NextResponse.json({ ok: true })
 
-    // Obtener datos del pago desde MP
-    const payment = new Payment(mp)
-    const paymentData = await payment.get({ id: paymentId })
-
-    if (paymentData.status !== "approved") {
-      return NextResponse.json({ ok: true })
-    }
+    const paymentData = await new Payment(mp).get({ id: paymentId })
+    if (paymentData.status !== "approved") return NextResponse.json({ ok: true })
 
     const orderId = paymentData.external_reference
     if (!orderId) return NextResponse.json({ ok: true })
 
-    const supabase = getEcommerceClient()
+    const supabase = getSupabase()
 
-    // Actualizar orden a pagada en el ecommerce
+    // Actualizar orden a pagada
     const { data: order, error } = await supabase
       .from("orders")
       .update({
@@ -162,7 +128,7 @@ export async function POST(req: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", orderId)
-      .select("*, order_items(quantity, price, product:products(name)), shipping_address")
+      .select("*, order_items(quantity, price, product_id, product:products(name, id)), shipping_address")
       .single()
 
     if (error || !order) {
@@ -170,7 +136,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    // Preparar datos de email
     const emailData = {
       orderId: order.id,
       customerName: order.shipping_address?.fullName ?? "Cliente",
@@ -188,11 +153,10 @@ export async function POST(req: NextRequest) {
       },
     }
 
-    // Ejecutar en paralelo: emails + WhatsApp + registrar + stock
     await Promise.allSettled([
       notificarNico(order),
-      registrarEnSistema(order, paymentData.payment_type_id ?? ""),
-      decrementarStockEnSistema(order.order_items ?? []),
+      registrarVenta(supabase, order, paymentData.payment_type_id ?? ""),
+      decrementarStock(supabase, order.order_items ?? []),
       sendOrderConfirmation({ ...emailData, customerEmail: paymentData.payer?.email ?? order.payer_email ?? "" }),
       sendOrderNotificationToNico(emailData),
     ])

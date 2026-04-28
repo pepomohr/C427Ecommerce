@@ -1,21 +1,29 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getSistemaSupabase } from "@/lib/supabase/sistema"
+import { createClient } from "@supabase/supabase-js"
+
+// Un solo Supabase — Sistema C427
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
 
 // GET /api/products?tag=antiedad&q=vitamina&id=xxx
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const tag      = searchParams.get("tag")
-    const q        = searchParams.get("q")
-    const id       = searchParams.get("id")
+    const tag = searchParams.get("tag")
+    const q   = searchParams.get("q")
+    const id  = searchParams.get("id")
 
-    const sistema = getSistemaSupabase()
+    const supabase = getSupabase()
 
     // ── Producto individual ──────────────────────────────────
     if (id) {
-      const { data, error } = await sistema
+      const { data, error } = await supabase
         .from("products")
-        .select("id, name, description, priceCash, priceList, stock, category, web_category, tags, image_url, web_visible, original_price, usage_mode, usage_results")
+        .select("id, name, description, price_cash, price_list, stock, category, web_category, tags, image_url, web_visible, original_price, usage_mode, usage_results")
         .eq("id", id)
         .eq("web_visible", true)
         .single()
@@ -24,10 +32,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(mapProduct(data))
     }
 
-    // ── Listado ──────────────────────────────────────────────
-    let query = sistema
+    // ── Listado (solo productos marcados como visibles en web) ─
+    let query = supabase
       .from("products")
-      .select("id, name, description, priceCash, priceList, stock, category, web_category, tags, image_url, web_visible, original_price, usage_mode, usage_results")
+      .select("id, name, description, price_cash, price_list, stock, category, web_category, tags, image_url, web_visible, original_price, usage_mode, usage_results")
       .eq("web_visible", true)
       .order("name")
 
@@ -55,13 +63,13 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// Normaliza el producto del Sistema al formato del ecommerce
+// Normaliza el producto de Sistema al formato del ecommerce
 function mapProduct(p: any) {
   return {
     id:             p.id,
     name:           p.name,
     description:    p.description ?? null,
-    price:          Number(p.priceList ?? p.priceCash ?? 0),
+    price:          Number(p.price_list ?? p.price_cash ?? 0),
     original_price: p.original_price ? Number(p.original_price) : null,
     stock:          Number(p.stock ?? 0),
     category:       p.web_category ?? p.category ?? null,
