@@ -7,7 +7,6 @@ import { Footer } from "@/components/footer"
 import { ProductCard } from "@/components/product-card"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
-import { createClient } from "@/lib/supabase/client"
 import type { Product } from "@/lib/types"
 import {
   Carousel,
@@ -66,32 +65,16 @@ function ProductsContent() {
 
   async function loadProducts() {
     setIsLoading(true)
-    const supabase = createClient()
-    
-    let query = supabase
-      .from("products")
-      .select("*")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false })
+    const params = new URLSearchParams()
+    if (selectedTag && selectedTag.toLowerCase() !== "todos") params.set("tag", selectedTag)
+    if (qParam) params.set("q", qParam)
 
-    // Filtro por Tags en Supabase
-    if (selectedTag && selectedTag.toLowerCase() !== "todos") {
-      query = query.contains("tags", [selectedTag.toLowerCase()])
-    }
+    const res  = await fetch(`/api/products?${params.toString()}`)
+    const data = await res.json()
 
-    const { data, error } = await query
-
-    if (data && !error) {
-      let finalData = data
-      // Filtro de búsqueda por texto (si existe qParam)
-      if (qParam) {
-        finalData = data.filter(p => 
-          p.name.toLowerCase().includes(qParam.toLowerCase()) ||
-          p.description?.toLowerCase().includes(qParam.toLowerCase())
-        )
-      }
+    if (Array.isArray(data)) {
       setProducts(data)
-      setFilteredProducts(finalData)
+      setFilteredProducts(data)
     }
     setIsLoading(false)
   }

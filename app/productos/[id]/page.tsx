@@ -2,8 +2,35 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { createClient } from "@/lib/supabase/server"
+import { getSistemaSupabase } from "@/lib/supabase/sistema"
 import { ProductDetailClient } from "@/components/product-detail-client"
+
+async function getProduct(id: string) {
+  const sistema = getSistemaSupabase()
+  const { data } = await sistema
+    .from("products")
+    .select("id, name, description, priceCash, priceList, stock, category, web_category, tags, image_url, web_visible, original_price, usage_mode, usage_results")
+    .eq("id", id)
+    .eq("web_visible", true)
+    .single()
+  if (!data) return null
+  return {
+    id:             data.id,
+    name:           data.name,
+    description:    data.description ?? null,
+    price:          Number(data.priceList ?? data.priceCash ?? 0),
+    original_price: data.original_price ? Number(data.original_price) : null,
+    stock:          Number(data.stock ?? 0),
+    category:       data.web_category ?? data.category ?? null,
+    tags:           data.tags ?? [],
+    image_url:      data.image_url ?? null,
+    is_active:      true,
+    usage_mode:     data.usage_mode ?? null,
+    usage_results:  data.usage_results ?? null,
+    created_at:     "",
+    updated_at:     "",
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -11,12 +38,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
   const { id } = await params
-  const supabase = await createClient()
-  const { data: product } = await supabase
-    .from("products")
-    .select("name, description, images, price, category")
-    .eq("id", id)
-    .single()
+  const product = await getProduct(id)
 
   if (!product) {
     return {
@@ -25,7 +47,7 @@ export async function generateMetadata({
     }
   }
 
-  const image = product.images?.[0] ?? "/c427logodorado.png"
+  const image = product.image_url ?? "/c427logodorado.png"
   const price = product.price ? `$${product.price}` : ""
   const title = `${product.name}${price ? ` - ${price}` : ""}`
   const description =
@@ -64,19 +86,12 @@ export async function generateMetadata({
 export default async function ProductDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }> 
+  params: Promise<{ id: string }>
 }) {
-  const { id } = await params 
-  const supabase = await createClient()
+  const { id } = await params
+  const product = await getProduct(id)
 
-  const { data: product, error } = await supabase
-    .from("products") 
-    .select("*")
-    .eq("id", id)
-    .single()
-
-  if (error || !product) {
-    console.error("Error al buscar producto:", error?.message)
+  if (!product) {
     notFound()
   }
 
@@ -85,7 +100,7 @@ export default async function ProductDetailPage({
     "@type": "Product",
     name: product.name,
     description: product.description ?? "",
-    image: product.images ?? [],
+    image: product.image_url ? [product.image_url] : [],
     brand: {
       "@type": "Brand",
       name: "C427 Medicina Estética",

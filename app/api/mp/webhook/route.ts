@@ -49,6 +49,37 @@ async function notificarNico(order: any) {
   }
 }
 
+// Decrementa el stock de los productos en el Sistema C427
+async function decrementarStockEnSistema(orderItems: any[]) {
+  if (!process.env.SISTEMA_SUPABASE_URL || !process.env.SISTEMA_SERVICE_ROLE_KEY) return
+  try {
+    const sistema = getSistemaClient()
+    for (const item of orderItems) {
+      const productId = item.product_id ?? item.product?.id
+      const qty       = Number(item.quantity ?? 1)
+      if (!productId) continue
+      await sistema.rpc("decrement_stock", { product_id: productId, qty })
+        .then(({ error }) => {
+          if (error) {
+            return sistema
+              .from("products")
+              .select("stock")
+              .eq("id", productId)
+              .single()
+              .then(({ data }) => {
+                if (data) {
+                  return sistema.from("products").update({ stock: Math.max(0, (data.stock ?? 0) - qty) }).eq("id", productId)
+                }
+              })
+          }
+        })
+    }
+    console.log("✅ Stock decrementado en Sistema C427 (webhook)")
+  } catch (err) {
+    console.error("Error decrementando stock (webhook):", err)
+  }
+}
+
 // Registra el ingreso del ecommerce en el Sistema C427
 async function registrarEnSistema(order: any, paymentMethod: string) {
   if (!process.env.SISTEMA_SUPABASE_URL || !process.env.SISTEMA_SERVICE_ROLE_KEY) return
@@ -157,10 +188,11 @@ export async function POST(req: NextRequest) {
       },
     }
 
-    // Ejecutar en paralelo: emails + WhatsApp + registrar en Sistema
+    // Ejecutar en paralelo: emails + WhatsApp + registrar + stock
     await Promise.allSettled([
       notificarNico(order),
       registrarEnSistema(order, paymentData.payment_type_id ?? ""),
+      decrementarStockEnSistema(order.order_items ?? []),
       sendOrderConfirmation({ ...emailData, customerEmail: paymentData.payer?.email ?? order.payer_email ?? "" }),
       sendOrderNotificationToNico(emailData),
     ])

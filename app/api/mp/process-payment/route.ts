@@ -19,6 +19,38 @@ function getSistemaClient() {
   )
 }
 
+async function decrementarStockEnSistema(items: any[]) {
+  if (!process.env.SISTEMA_SUPABASE_URL || !process.env.SISTEMA_SERVICE_ROLE_KEY) return
+  try {
+    const sistema = getSistemaClient()
+    for (const item of items) {
+      const productId = item.product?.id
+      const qty       = Number(item.quantity ?? 1)
+      if (!productId) continue
+      // Decremento atómico con RPC o raw update
+      await sistema.rpc("decrement_stock", { product_id: productId, qty })
+        .then(({ error }) => {
+          if (error) {
+            // fallback manual si la RPC no existe aún
+            return sistema
+              .from("products")
+              .select("stock")
+              .eq("id", productId)
+              .single()
+              .then(({ data }) => {
+                if (data) {
+                  return sistema.from("products").update({ stock: Math.max(0, (data.stock ?? 0) - qty) }).eq("id", productId)
+                }
+              })
+          }
+        })
+    }
+    console.log("✅ Stock decrementado en Sistema C427")
+  } catch (err) {
+    console.error("Error decrementando stock en Sistema:", err)
+  }
+}
+
 async function registrarEnSistema(order: any, items: any[], total: number, shipping: any, paymentMethodId: string) {
   if (!process.env.SISTEMA_SUPABASE_URL || !process.env.SISTEMA_SERVICE_ROLE_KEY) return
   try {
@@ -141,11 +173,12 @@ export async function POST(req: NextRequest) {
         },
       }
 
-      // Todo en paralelo: emails + Sistema (sin bloquear respuesta)
+      // Todo en paralelo: emails + Sistema + stock (sin bloquear respuesta)
       Promise.allSettled([
         sendOrderConfirmation(emailData),
         sendOrderNotificationToNico(emailData),
         registrarEnSistema(order, items, total, shipping, paymentMethodId ?? ""),
+        decrementarStockEnSistema(items),
       ])
 
       return NextResponse.json({ status: "approved", order_id: order.id })
