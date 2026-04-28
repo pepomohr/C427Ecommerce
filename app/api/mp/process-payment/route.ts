@@ -12,9 +12,57 @@ function getSupabase() {
   )
 }
 
+function getSistemaClient() {
+  return createClient(
+    process.env.SISTEMA_SUPABASE_URL!,
+    process.env.SISTEMA_SERVICE_ROLE_KEY!
+  )
+}
+
+async function registrarEnSistema(order: any, items: any[], total: number, shipping: any, paymentMethodId: string) {
+  if (!process.env.SISTEMA_SUPABASE_URL || !process.env.SISTEMA_SERVICE_ROLE_KEY) return
+  try {
+    const sistema = getSistemaClient()
+    const metodoPago = paymentMethodId?.includes("credit") ? "tarjeta"
+      : paymentMethodId?.includes("debit") ? "tarjeta"
+      : "tarjeta"
+
+    const saleItems = items.map((i: any) => ({
+      itemId: i.product?.id ?? "web",
+      itemName: i.product?.name ?? "Producto ecommerce",
+      quantity: i.quantity,
+      price: Number(i.product?.price ?? 0),
+      priceCashReference: Number(i.product?.price ?? 0),
+      total: Number(i.product?.price ?? 0) * i.quantity,
+      type: "product",
+      soldBy: null,
+    }))
+
+    const pedidoId = String(order.id).slice(0, 8).toUpperCase()
+    await sistema.from("sales").insert({
+      items: saleItems,
+      total: Number(total),
+      payment_method: metodoPago,
+      source: "web",
+      type: "direct",
+      patient_name: shipping?.fullName ?? "Cliente web",
+      processed_by: null,
+      observations: `Pedido web #${pedidoId} | Tel: ${shipping?.phone ?? ""} | ${shipping?.address ?? ""}, ${shipping?.city ?? ""}`,
+      date: new Date().toISOString(),
+    })
+    console.log("✅ Venta tarjeta registrada en Sistema C427")
+  } catch (err) {
+    console.error("Error registrando en Sistema C427:", err)
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const { token, installments, paymentMethodId, issuerId, identificationType, identificationNumber, items, shipping, userId, email } = await req.json()
+    const {
+      token, installments, paymentMethodId, issuerId,
+      identificationType, identificationNumber,
+      items, shipping, userId, email
+    } = await req.json()
 
     if (!token || !userId || !items?.length) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
@@ -76,7 +124,6 @@ export async function POST(req: NextRequest) {
         .update({ status: "paid", payment_id: String(result.id) })
         .eq("id", order.id)
 
-      // Enviar emails en paralelo (sin bloquear la respuesta)
       const emailData = {
         orderId: order.id,
         customerName: shipping?.fullName ?? "Cliente",
@@ -93,9 +140,12 @@ export async function POST(req: NextRequest) {
           phone: shipping?.phone,
         },
       }
+
+      // Todo en paralelo: emails + Sistema (sin bloquear respuesta)
       Promise.allSettled([
         sendOrderConfirmation(emailData),
         sendOrderNotificationToNico(emailData),
+        registrarEnSistema(order, items, total, shipping, paymentMethodId ?? ""),
       ])
 
       return NextResponse.json({ status: "approved", order_id: order.id })
