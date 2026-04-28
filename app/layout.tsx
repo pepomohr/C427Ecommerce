@@ -6,6 +6,7 @@ import { Suspense } from "react"
 import { CartProvider } from "@/lib/cart-context"
 import { Toaster } from "@/components/ui/toaster"
 import { WhatsAppButton } from "@/components/whatsapp-button"
+import { WelcomeToast } from "@/components/welcome-toast"
 import ChatIA from "@/components/chatia"
 import "./globals.css"
 
@@ -116,6 +117,7 @@ export default function RootLayout({
       <body className={`font-sans ${inter.variable}`}>
         <CartProvider>
           <Suspense fallback={null}>{children}</Suspense>
+          <Suspense fallback={null}><WelcomeToast /></Suspense>
           <Toaster />
           <ChatIA />
           <WhatsAppButton />

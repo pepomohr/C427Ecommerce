@@ -24,9 +24,15 @@ export async function GET(request: NextRequest) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      // Detectar si es usuario nuevo (created_at ≈ now)
+      const isNew = data?.user?.created_at
+        ? Date.now() - new Date(data.user.created_at).getTime() < 10000
+        : false
+      const welcomeParam = isNew ? "?welcome=new" : "?welcome=1"
+      const destination = next === "/" ? `/${welcomeParam}` : `${next}${welcomeParam}`
+      return NextResponse.redirect(`${origin}${destination}`)
     }
   }
 
