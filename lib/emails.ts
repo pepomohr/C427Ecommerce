@@ -132,14 +132,17 @@ function buildConfirmationEmail(data: EmailOrderData): string {
         <!-- WhatsApp -->
         <tr>
           <td style="padding:28px 40px 0;">
-            <div style="background:#f0faf4;border:1px solid #bbf0d0;border-radius:12px;padding:20px;text-align:center;">
-              <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#1a1a1a;">¿Alguna consulta sobre tu pedido?</p>
-              <p style="margin:0 0 14px;font-size:13px;color:#555;">Envianos tu número de pedido por WhatsApp y te respondemos a la brevedad.</p>
-              <a href="https://wa.me/5491160352289?text=Hola!%20Mi%20n%C3%BAmero%20de%20pedido%20es%20%23${data.orderId.slice(0, 8).toUpperCase()}"
-                style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 24px;border-radius:8px;">
-                <span style="font-size:18px;">💬</span> Escribinos al WhatsApp
+            <div style="background:#fff8e1;border:2px solid #f59e0b;border-radius:12px;padding:20px;text-align:center;">
+              <p style="margin:0 0 4px;font-size:16px;font-weight:900;color:#1a1a1a;">⚠️ Paso obligatorio</p>
+              <p style="margin:0 0 14px;font-size:14px;color:#333;line-height:1.6;">
+                Para confirmar y procesar tu pedido, <strong>debés enviarnos tu ID de compra por WhatsApp.</strong><br>
+                Sin este paso tu pedido no será procesado.
+              </p>
+              <a href="https://wa.me/5491160352289?text=Hola!%20Quiero%20confirmar%20mi%20pedido.%20Mi%20ID%20de%20compra%20es%3A%20%23${data.orderId.slice(0, 8).toUpperCase()}"
+                style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:14px 28px;border-radius:8px;">
+                <span style="font-size:20px;">💬</span> Enviar ID al WhatsApp ahora
               </a>
-              <p style="margin:10px 0 0;font-size:11px;color:#888;">Tu ID de pedido: <strong style="color:#936c43;">#${data.orderId.slice(0, 8).toUpperCase()}</strong></p>
+              <p style="margin:14px 0 0;font-size:15px;color:#1a1a1a;">Tu ID de pedido: <strong style="font-size:18px;color:#936c43;letter-spacing:2px;">#${data.orderId.slice(0, 8).toUpperCase()}</strong></p>
             </div>
           </td>
         </tr>
