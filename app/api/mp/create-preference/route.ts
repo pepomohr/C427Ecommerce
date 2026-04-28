@@ -13,7 +13,7 @@ function getSupabase() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { items, shipping, userId } = await req.json()
+    const { items, shipping, userId, email } = await req.json()
 
     if (!items?.length || !userId) {
       return NextResponse.json({ error: "Datos incompletos" }, { status: 400 })
@@ -67,7 +67,25 @@ export async function POST(req: NextRequest) {
           quantity: Number(item.quantity),
           unit_price: Number(item.product.price),
           currency_id: "ARS",
+          category_id: "health_beauty",
         })),
+        payer: {
+          email: email ?? "",
+          name: shipping?.fullName?.split(" ")[0] ?? "",
+          surname: shipping?.fullName?.split(" ").slice(1).join(" ") ?? "",
+          phone: { area_code: "54", number: (shipping?.phone ?? "").replace(/\D/g, "") },
+          address: {
+            street_name: shipping?.address ?? "",
+            zip_code: shipping?.postalCode ?? "",
+          },
+        },
+        shipments: {
+          receiver_address: {
+            street_name: shipping?.address ?? "",
+            city_name: shipping?.city ?? "",
+            zip_code: shipping?.postalCode ?? "",
+          },
+        },
         back_urls: {
           success: `https://c427.com.ar/checkout/exito?order=${order.id}`,
           failure: `https://c427.com.ar/checkout?error=pago_fallido`,

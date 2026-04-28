@@ -76,6 +76,7 @@ export default function CheckoutPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           items,
+          email: user?.email ?? "",
           shipping: { fullName, phone, address, city, postalCode },
           userId: user.id,
         }),
