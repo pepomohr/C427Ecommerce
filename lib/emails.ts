@@ -46,9 +46,9 @@ function buildConfirmationEmail(data: EmailOrderData): string {
 
         <!-- Header -->
         <tr>
-          <td style="background:linear-gradient(135deg,#936c43 0%,#b8894f 100%);padding:40px 40px 32px;text-align:center;">
-            <p style="margin:0;color:#fff;font-size:28px;font-weight:900;letter-spacing:4px;text-transform:uppercase;">C427</p>
-            <p style="margin:4px 0 0;color:rgba(255,255,255,0.8);font-size:11px;letter-spacing:3px;text-transform:uppercase;">Medicina Estética</p>
+          <td style="background:linear-gradient(135deg,#936c43 0%,#b8894f 100%);padding:32px 40px;text-align:center;">
+            <img src="https://c427.com.ar/c427logodorado.png" alt="C427" width="80" height="80" style="display:block;margin:0 auto 12px;border-radius:50%;background:rgba(255,255,255,0.15);padding:8px;" />
+            <p style="margin:0;color:#fff;font-size:13px;letter-spacing:3px;text-transform:uppercase;font-weight:600;">Medicina Estética</p>
           </td>
         </tr>
 
@@ -129,9 +129,24 @@ function buildConfirmationEmail(data: EmailOrderData): string {
           </td>
         </tr>
 
+        <!-- WhatsApp -->
+        <tr>
+          <td style="padding:28px 40px 0;">
+            <div style="background:#f0faf4;border:1px solid #bbf0d0;border-radius:12px;padding:20px;text-align:center;">
+              <p style="margin:0 0 6px;font-size:14px;font-weight:700;color:#1a1a1a;">¿Alguna consulta sobre tu pedido?</p>
+              <p style="margin:0 0 14px;font-size:13px;color:#555;">Envianos tu número de pedido por WhatsApp y te respondemos a la brevedad.</p>
+              <a href="https://wa.me/5491160352289?text=Hola!%20Mi%20n%C3%BAmero%20de%20pedido%20es%20%23${data.orderId.slice(0, 8).toUpperCase()}"
+                style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;text-decoration:none;font-size:13px;font-weight:700;padding:12px 24px;border-radius:8px;">
+                <span style="font-size:18px;">💬</span> Escribinos al WhatsApp
+              </a>
+              <p style="margin:10px 0 0;font-size:11px;color:#888;">Tu ID de pedido: <strong style="color:#936c43;">#${data.orderId.slice(0, 8).toUpperCase()}</strong></p>
+            </div>
+          </td>
+        </tr>
+
         <!-- CTA -->
         <tr>
-          <td style="padding:28px 40px 0;text-align:center;">
+          <td style="padding:20px 40px 0;text-align:center;">
             <a href="https://c427.com.ar/productos" style="display:inline-block;background:linear-gradient(135deg,#936c43,#b8894f);color:#fff;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px 32px;border-radius:8px;">Ver más productos</a>
           </td>
         </tr>
