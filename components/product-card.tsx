@@ -13,6 +13,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = product.stock === 0
+  const isGiftCard = product.name.toLowerCase().includes("gift card")
   const isVideo = product.image_url?.toLowerCase().endsWith('.mp4') || product.image_url?.toLowerCase().endsWith('.webm')
   
   return (
@@ -61,17 +62,30 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.description}
         </p>
         <div className="flex items-end gap-2 sm:gap-3 mt-auto flex-wrap">
-          <p className="text-lg sm:text-2xl font-bold text-primary group-hover:text-primary/80 transition-colors tracking-tighter">
-            ${product.price.toLocaleString("es-AR")}
-          </p>
-          {product.original_price && (
+          {isGiftCard ? (
             <>
-              <p className="text-sm sm:text-base text-muted-foreground line-through font-normal">
-                ${product.original_price.toLocaleString("es-AR")}
+              <p className="text-lg sm:text-2xl font-bold text-primary group-hover:text-primary/80 transition-colors tracking-tighter">
+                Desde $50.000
               </p>
-              <Badge className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                50% OFF
+              <Badge className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20">
+                Elegí tu monto
               </Badge>
+            </>
+          ) : (
+            <>
+              <p className="text-lg sm:text-2xl font-bold text-primary group-hover:text-primary/80 transition-colors tracking-tighter">
+                ${product.price.toLocaleString("es-AR")}
+              </p>
+              {product.original_price && (
+                <>
+                  <p className="text-sm sm:text-base text-muted-foreground line-through font-normal">
+                    ${product.original_price.toLocaleString("es-AR")}
+                  </p>
+                  <Badge className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    50% OFF
+                  </Badge>
+                </>
+              )}
             </>
           )}
         </div>

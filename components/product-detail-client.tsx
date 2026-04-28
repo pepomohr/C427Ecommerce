@@ -17,8 +17,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const isGiftCard = product.name.toLowerCase().includes("gift card")
   
   const giftCardOptions = [
-    { label: "Gift Card 50$", price: 50000 },
-    { label: "Gift Card 100$", price: 100000 },
+    { label: "Gift Card $50.000", price: 50000 },
+    { label: "Gift Card $100.000", price: 100000 },
     { label: "Gift Card Antiage", price: 350000 },
   ]
 
@@ -99,7 +99,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                     >
                       <div className="flex flex-col">
                         <span className={`text-xs font-bold ${selectedOption.label === option.label ? "text-primary" : "text-foreground"}`}>
-                          {option.label.split('Gift Card ')[1]}
+                          {option.label.replace('Gift Card ', '')}
                         </span>
                         <span className="text-[10px] text-muted-foreground">${option.price.toLocaleString("es-AR")}</span>
                       </div>

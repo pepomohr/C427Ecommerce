@@ -7,10 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ClearCartOnLoad } from "@/components/clear-cart-on-load"
 import Link from "next/link"
-import { CheckCircle, Package } from "lucide-react"
+import { CheckCircle, Package, MessageCircle } from "lucide-react"
 
-async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
+async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?: string; method?: string }> }) {
   const params = await searchParams
+  const isWhatsapp = params.method === "whatsapp"
   const supabase = await createClient()
 
   const {
@@ -46,16 +47,23 @@ async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?
             <Card>
               <CardHeader>
                 <div className="flex justify-center mb-4">
-                  <div className="p-3 rounded-full bg-primary/10">
-                    <CheckCircle className="h-12 w-12 text-primary" />
+                  <div className={`p-3 rounded-full ${isWhatsapp ? "bg-green-100" : "bg-primary/10"}`}>
+                    {isWhatsapp
+                      ? <MessageCircle className="h-12 w-12 text-[#25D366]" />
+                      : <CheckCircle className="h-12 w-12 text-primary" />
+                    }
                   </div>
                 </div>
-                <CardTitle className="text-3xl text-center">¡Compra Exitosa!</CardTitle>
+                <CardTitle className="text-3xl text-center">
+                  {isWhatsapp ? "¡Pedido Enviado!" : "¡Compra Exitosa!"}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <p className="text-center text-muted-foreground leading-relaxed">
-                  Tu pedido ha sido procesado correctamente. Recibirás un email de confirmación con los detalles de tu
-                  compra.
+                  {isWhatsapp
+                    ? "Tu pedido fue enviado por WhatsApp. En breve te respondemos con el alias para realizar la transferencia y confirmamos el envío."
+                    : "Tu pedido ha sido procesado correctamente. Recibirás un email de confirmación con los detalles de tu compra."
+                  }
                 </p>
 
                 {order && (
@@ -85,14 +93,23 @@ async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?
                   </div>
                 )}
 
-                <div className="bg-muted/30 rounded-lg p-4">
+                <div className={`rounded-lg p-4 ${isWhatsapp ? "bg-green-50 border border-green-100" : "bg-muted/30"}`}>
                   <h3 className="font-semibold mb-2">¿Qué sigue?</h3>
-                  <ul className="text-sm text-muted-foreground space-y-1 leading-relaxed">
-                    <li>• Recibirás un email de confirmación</li>
-                    <li>• Prepararemos tu pedido en 24-48 horas</li>
-                    <li>• Te enviaremos el código de seguimiento</li>
-                    <li>• Recibirás tu pedido en 3-5 días hábiles</li>
-                  </ul>
+                  {isWhatsapp ? (
+                    <ul className="text-sm text-muted-foreground space-y-1 leading-relaxed">
+                      <li>• Revisá el WhatsApp que se abrió con tu pedido</li>
+                      <li>• Te responderemos con el alias para transferir</li>
+                      <li>• Una vez confirmado el pago, preparamos tu pedido</li>
+                      <li>• Coordinamos el envío contigo por WhatsApp</li>
+                    </ul>
+                  ) : (
+                    <ul className="text-sm text-muted-foreground space-y-1 leading-relaxed">
+                      <li>• Recibirás un email de confirmación</li>
+                      <li>• Prepararemos tu pedido en 24-48 horas</li>
+                      <li>• Te enviaremos el código de seguimiento</li>
+                      <li>• Recibirás tu pedido en 3-5 días hábiles</li>
+                    </ul>
+                  )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
@@ -114,7 +131,7 @@ async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?
   )
 }
 
-export default function SuccessPage({ searchParams }: { searchParams: Promise<{ order?: string }> }) {
+export default function SuccessPage({ searchParams }: { searchParams: Promise<{ order?: string; method?: string }> }) {
   return (
     <Suspense fallback={<div>Cargando...</div>}>
       <SuccessContent searchParams={searchParams} />

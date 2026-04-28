@@ -13,10 +13,10 @@ import { Separator } from "@/components/ui/separator"
 import { useCart } from "@/lib/cart-context"
 import { createClient } from "@/lib/supabase/client"
 import { CardPaymentForm } from "@/components/card-payment-form"
-import { Loader2, MapPin, CreditCard, AlertCircle, ExternalLink } from "lucide-react"
+import { Loader2, MapPin, CreditCard, AlertCircle, ExternalLink, MessageCircle } from "lucide-react"
 import Image from "next/image"
 
-type PaymentMethod = "card" | "mp"
+type PaymentMethod = "card" | "mp" | "whatsapp"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -63,6 +63,64 @@ export default function CheckoutPage() {
       return false
     }
     return true
+  }
+
+  async function handleWhatsAppCheckout() {
+    setError(null)
+    if (!validateShipping()) return
+    setIsProcessing(true)
+
+    try {
+      const supabase = createClient()
+
+      // Crear orden en DB con estado pendiente WhatsApp
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          total: totalPrice,
+          status: "pending_whatsapp",
+          shipping_address: { fullName, phone, address, city, postalCode },
+          payer_email: user.email ?? "",
+        })
+        .select()
+        .single()
+
+      if (orderError || !order) throw new Error("Error al crear el pedido")
+
+      await supabase.from("order_items").insert(
+        items.map((item) => ({
+          order_id: order.id,
+          product_id: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price,
+        }))
+      )
+
+      const pedidoId = order.id.slice(0, 8).toUpperCase()
+      const productLines = items
+        .map((i) => `• ${i.product.name} x${i.quantity} — $${(i.product.price * i.quantity).toLocaleString("es-AR")}`)
+        .join("\n")
+
+      const mensaje = encodeURIComponent(
+        `Hola! 👋 Quiero hacer un pedido en *C427 Medicina Estética*\n\n` +
+        `📦 *Productos:*\n${productLines}\n\n` +
+        `💰 *Total: $${totalPrice.toLocaleString("es-AR")}*\n\n` +
+        `👤 *Nombre:* ${fullName}\n` +
+        `📞 *Tel:* ${phone}\n` +
+        `📍 *Dirección:* ${address}, ${city} (${postalCode})\n\n` +
+        `🆔 Pedido #${pedidoId}\n\n` +
+        `Por favor confirmame el alias para realizar la transferencia 🙏`
+      )
+
+      clearCart()
+      window.open(`https://wa.me/5491160352289?text=${mensaje}`, "_blank")
+      router.push(`/checkout/exito?order=${order.id}&method=whatsapp`)
+
+    } catch (err: any) {
+      setError(err?.message || "Error al procesar el pedido. Intentá de nuevo.")
+      setIsProcessing(false)
+    }
   }
 
   async function handleMPCheckout() {
@@ -194,29 +252,42 @@ export default function CheckoutPage() {
                 <CardContent className="p-4 sm:p-6 space-y-4">
 
                   {/* Tabs */}
-                  <div className="grid grid-cols-2 gap-2 p-1 bg-muted rounded-lg">
+                  <div className="grid grid-cols-3 gap-2 p-1 bg-muted rounded-lg">
                     <button
                       type="button"
                       onClick={() => setPaymentMethod("card")}
-                      className={`py-2.5 px-3 rounded-md text-sm font-medium transition-all ${
+                      className={`py-2.5 px-2 rounded-md text-xs font-medium transition-all flex flex-col items-center justify-center gap-1 ${
                         paymentMethod === "card"
                           ? "bg-white shadow-sm text-foreground"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
-                      💳 Tarjeta de crédito/débito
+                      <span>💳</span>
+                      <span>Tarjeta</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setPaymentMethod("mp")}
-                      className={`py-2.5 px-3 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-1.5 ${
+                      className={`py-2.5 px-2 rounded-md text-xs font-medium transition-all flex flex-col items-center justify-center gap-1 ${
                         paymentMethod === "mp"
                           ? "bg-white shadow-sm text-foreground"
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                     >
                       <Image src="/mercado-pago-logo.png" alt="MP" width={18} height={18} className="object-contain" />
-                      Mercado Pago
+                      <span>Mercado Pago</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod("whatsapp")}
+                      className={`py-2.5 px-2 rounded-md text-xs font-medium transition-all flex flex-col items-center justify-center gap-1 ${
+                        paymentMethod === "whatsapp"
+                          ? "bg-white shadow-sm text-foreground"
+                          : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <MessageCircle className="h-4 w-4 text-[#25D366]" />
+                      <span>WhatsApp</span>
                     </button>
                   </div>
 
@@ -275,6 +346,55 @@ export default function CheckoutPage() {
                         ) : (
                           <div className="flex items-center gap-2">
                             Continuar con Mercado Pago →
+                          </div>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+
+                  {/* Panel WhatsApp */}
+                  {paymentMethod === "whatsapp" && (
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3 p-4 border rounded-lg bg-green-50/50 border-green-200">
+                        <MessageCircle className="h-4 w-4 text-[#25D366] mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-sm text-green-800">Pago por transferencia / alias</p>
+                          <p className="text-xs text-green-700 mt-1">
+                            Al confirmar, se abrirá WhatsApp con los detalles de tu pedido. Te responderemos con el alias para realizar la transferencia y coordinar el envío.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-muted/50 rounded-lg border text-xs text-muted-foreground space-y-1">
+                        <p className="font-semibold text-foreground text-sm">¿Cómo funciona?</p>
+                        <p>1. Hacés clic en "Terminar por WhatsApp"</p>
+                        <p>2. Se abre WhatsApp con tu pedido completo</p>
+                        <p>3. Te enviamos el alias para transferir</p>
+                        <p>4. Confirmamos tu pago y coordinamos el envío</p>
+                      </div>
+
+                      {error && (
+                        <div className="flex items-start gap-2 text-destructive bg-destructive/10 p-3 rounded-lg">
+                          <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                          <p className="text-xs">{error}</p>
+                        </div>
+                      )}
+
+                      <Button
+                        type="button"
+                        className="w-full py-6 font-bold bg-[#25D366] hover:bg-[#20b558] text-white"
+                        disabled={isProcessing}
+                        onClick={handleWhatsAppCheckout}
+                      >
+                        {isProcessing ? (
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Preparando pedido...
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <MessageCircle className="h-4 w-4" />
+                            Terminar por WhatsApp
                           </div>
                         )}
                       </Button>
