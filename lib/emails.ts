@@ -221,7 +221,7 @@ export async function sendOrderConfirmation(data: EmailOrderData) {
   if (!process.env.RESEND_API_KEY) return
   try {
     await resend.emails.send({
-      from: "C427 Medicina Estética <onboarding@resend.dev>",
+      from: "C427 Medicina Estética <pedidos@c427.com.ar>",
       to: data.customerEmail,
       subject: `✅ Pedido confirmado #${data.orderId.slice(0, 8).toUpperCase()} — C427`,
       html: buildConfirmationEmail(data),
