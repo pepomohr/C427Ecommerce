@@ -203,7 +203,7 @@ export async function sendOrderConfirmation(data: EmailOrderData) {
   if (!process.env.RESEND_API_KEY) return
   try {
     await resend.emails.send({
-      from: "C427 Medicina Estética <pedidos@c427.com.ar>",
+      from: "C427 Medicina Estética <onboarding@resend.dev>",
       to: data.customerEmail,
       subject: `✅ Pedido confirmado #${data.orderId.slice(0, 8).toUpperCase()} — C427`,
       html: buildConfirmationEmail(data),
@@ -218,7 +218,7 @@ export async function sendOrderNotificationToNico(data: EmailOrderData) {
   if (!process.env.RESEND_API_KEY || !nicoEmail) return
   try {
     await resend.emails.send({
-      from: "C427 Web <pedidos@c427.com.ar>",
+      from: "C427 Web <onboarding@resend.dev>",
       to: nicoEmail,
       subject: `🛒 Nuevo pedido web — ${data.customerName} — $${data.total.toLocaleString("es-AR")}`,
       html: buildNotificationEmail(data),
