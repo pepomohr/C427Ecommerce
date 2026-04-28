@@ -1,27 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createClient } from "@supabase/supabase-js"
-
-// Un solo Supabase — Sistema C427
-function getSupabase() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-}
+import { getSistemaSupabase } from "@/lib/supabase/sistema"
 
 // GET /api/products?tag=antiedad&q=vitamina&id=xxx
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url)
-    const tag = searchParams.get("tag")
-    const q   = searchParams.get("q")
-    const id  = searchParams.get("id")
+    const tag      = searchParams.get("tag")
+    const q        = searchParams.get("q")
+    const id       = searchParams.get("id")
 
-    const supabase = getSupabase()
+    const sistema = getSistemaSupabase()
 
     // ── Producto individual ──────────────────────────────────
     if (id) {
-      const { data, error } = await supabase
+      const { data, error } = await sistema
         .from("products")
         .select("id, name, description, price_cash, price_list, stock, category, web_category, tags, image_url, web_visible, original_price, usage_mode, usage_results")
         .eq("id", id)
@@ -32,8 +24,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(mapProduct(data))
     }
 
-    // ── Listado (solo productos marcados como visibles en web) ─
-    let query = supabase
+    // ── Listado ──────────────────────────────────────────────
+    let query = sistema
       .from("products")
       .select("id, name, description, price_cash, price_list, stock, category, web_category, tags, image_url, web_visible, original_price, usage_mode, usage_results")
       .eq("web_visible", true)
