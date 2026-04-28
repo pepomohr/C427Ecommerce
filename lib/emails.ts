@@ -38,66 +38,80 @@ function buildConfirmationEmail(data: EmailOrderData): string {
     )
     .join("")
 
+  const orderId = data.orderId.slice(0, 8).toUpperCase()
+  const waLink = `https://wa.me/5491160352289?text=Hola!%20Quiero%20confirmar%20mi%20pedido.%20Mi%20ID%20de%20compra%20es%3A%20%23${orderId}`
+
   return `
 <!DOCTYPE html>
 <html lang="es">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#faf8f5;font-family:'Helvetica Neue',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#faf8f5;padding:40px 20px;">
+<body style="margin:0;padding:0;background:#f5f0ea;font-family:'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0ea;padding:32px 16px;">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:580px;width:100%;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(147,108,67,0.15);">
 
-        <!-- Header -->
+        <!-- Header: logo sobre fondo blanco -->
         <tr>
-          <td style="background:linear-gradient(135deg,#936c43 0%,#b8894f 100%);padding:32px 40px;text-align:center;">
-            <img src="https://c427.com.ar/c427logodorado.png" alt="C427" width="80" height="80" style="display:block;margin:0 auto 12px;border-radius:50%;background:rgba(255,255,255,0.15);padding:8px;" />
-            <p style="margin:0;color:#fff;font-size:13px;letter-spacing:3px;text-transform:uppercase;font-weight:600;">Medicina Estética</p>
+          <td style="background:#ffffff;padding:32px 40px 20px;text-align:center;border-bottom:3px solid #936c43;">
+            <img src="https://c427.com.ar/apple-touch-icon.png" alt="C427" width="90" height="90" style="display:block;margin:0 auto 10px;border-radius:18px;" />
+            <p style="margin:0;font-size:11px;letter-spacing:4px;text-transform:uppercase;font-weight:700;color:#936c43;">Medicina Estética</p>
           </td>
         </tr>
 
-        <!-- Título -->
+        <!-- PASO OBLIGATORIO — primero y grande -->
         <tr>
-          <td style="padding:40px 40px 0;text-align:center;">
-            <div style="width:56px;height:56px;background:#f0f9f4;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-              <span style="font-size:28px;">✅</span>
-            </div>
-            <h1 style="margin:0;font-size:26px;color:#1a0f0a;font-weight:800;">¡Tu pedido está confirmado!</h1>
-            <p style="margin:12px 0 0;font-size:15px;color:#7a6055;line-height:1.6;">
-              Hola ${data.customerName.split(" ")[0]}, gracias por tu compra en C427.<br>
-              Estamos preparando tu pedido con mucho cuidado.
+          <td style="background:#936c43;padding:24px 32px;text-align:center;">
+            <p style="margin:0 0 6px;font-size:18px;font-weight:900;color:#fff;letter-spacing:1px;">⚠️ PASO OBLIGATORIO</p>
+            <p style="margin:0 0 16px;font-size:14px;color:rgba(255,255,255,0.92);line-height:1.6;">
+              Para procesar tu envío debés enviarnos tu ID de compra por WhatsApp.<br>
+              <strong style="color:#fff;">Sin este paso el pedido no se despacha.</strong>
+            </p>
+            <a href="${waLink}" style="display:inline-block;background:#25D366;color:#fff;text-decoration:none;font-size:15px;font-weight:800;padding:14px 32px;border-radius:10px;letter-spacing:0.5px;">
+              💬 Enviar ID al WhatsApp ahora
+            </a>
+            <p style="margin:14px 0 0;font-size:22px;font-weight:900;color:#fff;letter-spacing:3px;">#${orderId}</p>
+          </td>
+        </tr>
+
+        <!-- Confirmación -->
+        <tr>
+          <td style="padding:32px 40px 0;text-align:center;">
+            <p style="margin:0 0 6px;font-size:28px;">✅</p>
+            <h1 style="margin:0;font-size:24px;color:#1a0f0a;font-weight:800;">¡Tu pedido está confirmado!</h1>
+            <p style="margin:10px 0 0;font-size:15px;color:#7a6055;line-height:1.6;">
+              Hola ${data.customerName.split(" ")[0]}, gracias por tu compra en C427.<br>Estamos preparando tu pedido con mucho cuidado.
             </p>
           </td>
         </tr>
 
         <!-- Número de pedido -->
         <tr>
-          <td style="padding:24px 40px 0;">
-            <div style="background:#faf8f5;border:1px solid #e8ddd4;border-radius:10px;padding:16px 20px;text-align:center;">
-              <p style="margin:0;font-size:11px;color:#9e8070;letter-spacing:2px;text-transform:uppercase;font-weight:600;">Número de pedido</p>
-              <p style="margin:4px 0 0;font-size:20px;font-weight:900;color:#936c43;letter-spacing:2px;">#${data.orderId.slice(0, 8).toUpperCase()}</p>
+          <td style="padding:20px 40px 0;">
+            <div style="background:#faf6f1;border:2px solid #936c43;border-radius:12px;padding:14px 20px;text-align:center;">
+              <p style="margin:0;font-size:11px;color:#936c43;letter-spacing:2px;text-transform:uppercase;font-weight:700;">Número de pedido</p>
+              <p style="margin:4px 0 0;font-size:24px;font-weight:900;color:#936c43;letter-spacing:3px;">#${orderId}</p>
             </div>
           </td>
         </tr>
 
-        <!-- Productos -->
+        <!-- Detalle productos -->
         <tr>
-          <td style="padding:28px 40px 0;">
-            <p style="margin:0 0 12px;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#9e8070;">Detalle del pedido</p>
+          <td style="padding:24px 40px 0;">
+            <p style="margin:0 0 10px;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#936c43;">Detalle del pedido</p>
             <table width="100%" cellpadding="0" cellspacing="0">
               <thead>
-                <tr>
-                  <th style="text-align:left;font-size:11px;color:#9e8070;font-weight:600;padding-bottom:8px;border-bottom:2px solid #e8ddd4;text-transform:uppercase;letter-spacing:1px;">Producto</th>
-                  <th style="text-align:center;font-size:11px;color:#9e8070;font-weight:600;padding-bottom:8px;border-bottom:2px solid #e8ddd4;text-transform:uppercase;letter-spacing:1px;">Cant.</th>
-                  <th style="text-align:right;font-size:11px;color:#9e8070;font-weight:600;padding-bottom:8px;border-bottom:2px solid #e8ddd4;text-transform:uppercase;letter-spacing:1px;">Precio</th>
+                <tr style="background:#faf6f1;">
+                  <th style="text-align:left;font-size:11px;color:#936c43;font-weight:700;padding:8px 0;border-bottom:2px solid #e8ddd4;text-transform:uppercase;letter-spacing:1px;">Producto</th>
+                  <th style="text-align:center;font-size:11px;color:#936c43;font-weight:700;padding:8px 0;border-bottom:2px solid #e8ddd4;text-transform:uppercase;letter-spacing:1px;">Cant.</th>
+                  <th style="text-align:right;font-size:11px;color:#936c43;font-weight:700;padding:8px 0;border-bottom:2px solid #e8ddd4;text-transform:uppercase;letter-spacing:1px;">Precio</th>
                 </tr>
               </thead>
               <tbody>${itemRows}</tbody>
             </table>
-            <!-- Total -->
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:16px;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:12px;border-top:2px solid #936c43;padding-top:12px;">
               <tr>
-                <td style="font-size:16px;font-weight:800;color:#1a0f0a;">Total</td>
-                <td style="text-align:right;font-size:22px;font-weight:900;color:#936c43;">$${data.total.toLocaleString("es-AR")}</td>
+                <td style="font-size:16px;font-weight:800;color:#1a0f0a;padding-top:12px;">Total</td>
+                <td style="text-align:right;font-size:24px;font-weight:900;color:#936c43;padding-top:12px;">$${data.total.toLocaleString("es-AR")}</td>
               </tr>
             </table>
           </td>
@@ -105,63 +119,38 @@ function buildConfirmationEmail(data: EmailOrderData): string {
 
         <!-- Envío -->
         <tr>
-          <td style="padding:24px 40px 0;">
-            <div style="background:#faf8f5;border:1px solid #e8ddd4;border-radius:10px;padding:20px;">
-              <p style="margin:0 0 8px;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#9e8070;">📦 Envío a domicilio</p>
-              <p style="margin:0;font-size:14px;color:#3d2b1f;line-height:1.6;">
-                ${data.shipping.address ? `${data.shipping.address}, ${data.shipping.city}` : ""}
-              </p>
-              <p style="margin:8px 0 0;font-size:13px;color:#7a6055;">
-                Nos contactaremos al <strong>${data.shipping.phone || ""}</strong> para coordinar la entrega.
-              </p>
+          <td style="padding:20px 40px 0;">
+            <div style="background:#faf6f1;border-left:4px solid #936c43;border-radius:0 10px 10px 0;padding:16px 20px;">
+              <p style="margin:0 0 6px;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#936c43;">📦 Envío a domicilio</p>
+              <p style="margin:0;font-size:14px;color:#3d2b1f;line-height:1.6;">${data.shipping.address ? `${data.shipping.address}, ${data.shipping.city}` : ""}</p>
+              <p style="margin:6px 0 0;font-size:13px;color:#7a6055;">Te contactamos al <strong>${data.shipping.phone || ""}</strong> para coordinar la entrega.</p>
             </div>
           </td>
         </tr>
 
         <!-- Próximos pasos -->
         <tr>
-          <td style="padding:24px 40px 0;">
-            <div style="border-left:3px solid #936c43;padding-left:16px;">
-              <p style="margin:0 0 8px;font-size:14px;font-weight:700;color:#1a0f0a;">¿Qué pasa ahora?</p>
-              <p style="margin:0;font-size:13px;color:#7a6055;line-height:1.8;">
-                📞 Te contactamos en 24–48 hs hábiles para coordinar la entrega<br>
-                🚚 Tu pedido llega en 3–5 días hábiles<br>
-                💬 Ante cualquier consulta escribinos al WhatsApp del consultorio
-              </p>
-            </div>
-          </td>
-        </tr>
-
-        <!-- WhatsApp -->
-        <tr>
-          <td style="padding:28px 40px 0;">
-            <div style="background:#fff8e1;border:2px solid #f59e0b;border-radius:12px;padding:20px;text-align:center;">
-              <p style="margin:0 0 4px;font-size:16px;font-weight:900;color:#1a1a1a;">⚠️ Paso obligatorio</p>
-              <p style="margin:0 0 14px;font-size:14px;color:#333;line-height:1.6;">
-                Para confirmar y procesar tu pedido, <strong>debés enviarnos tu ID de compra por WhatsApp.</strong><br>
-                Sin este paso tu pedido no será procesado.
-              </p>
-              <a href="https://wa.me/5491160352289?text=Hola!%20Quiero%20confirmar%20mi%20pedido.%20Mi%20ID%20de%20compra%20es%3A%20%23${data.orderId.slice(0, 8).toUpperCase()}"
-                style="display:inline-flex;align-items:center;gap:8px;background:#25D366;color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:14px 28px;border-radius:8px;">
-                <span style="font-size:20px;">💬</span> Enviar ID al WhatsApp ahora
-              </a>
-              <p style="margin:14px 0 0;font-size:15px;color:#1a1a1a;">Tu ID de pedido: <strong style="font-size:18px;color:#936c43;letter-spacing:2px;">#${data.orderId.slice(0, 8).toUpperCase()}</strong></p>
-            </div>
+          <td style="padding:20px 40px 0;">
+            <p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#1a0f0a;">¿Qué pasa ahora?</p>
+            <p style="margin:0;font-size:13px;color:#7a6055;line-height:2;">
+              📞 Te contactamos en 24–48 hs para coordinar la entrega<br>
+              🚚 Tu pedido llega en 3–5 días hábiles
+            </p>
           </td>
         </tr>
 
         <!-- CTA -->
         <tr>
-          <td style="padding:20px 40px 0;text-align:center;">
-            <a href="https://c427.com.ar/productos" style="display:inline-block;background:linear-gradient(135deg,#936c43,#b8894f);color:#fff;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:14px 32px;border-radius:8px;">Ver más productos</a>
+          <td style="padding:24px 40px 0;text-align:center;">
+            <a href="https://c427.com.ar/productos" style="display:inline-block;background:#936c43;color:#fff;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;padding:14px 36px;border-radius:10px;">Ver más productos</a>
           </td>
         </tr>
 
         <!-- Footer -->
         <tr>
-          <td style="padding:32px 40px 40px;text-align:center;border-top:1px solid #f0ebe5;margin-top:32px;">
-            <p style="margin:24px 0 0;font-size:12px;color:#b0a090;">© 2025 C427 Medicina Estética · Banfield, Buenos Aires</p>
-            <p style="margin:4px 0 0;font-size:12px;color:#b0a090;">c427.com.ar</p>
+          <td style="padding:28px 40px 32px;text-align:center;margin-top:24px;">
+            <p style="margin:0;font-size:11px;color:#b0a090;">© 2025 C427 Medicina Estética · Banfield, Buenos Aires</p>
+            <p style="margin:4px 0 0;font-size:11px;color:#936c43;">c427.com.ar</p>
           </td>
         </tr>
 
