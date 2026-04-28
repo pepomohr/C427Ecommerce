@@ -1,6 +1,9 @@
 import { Resend } from "resend"
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Inicialización lazy para que no falle en build sin env vars
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY)
+}
 
 interface OrderItem {
   name: string
@@ -220,6 +223,7 @@ function buildNotificationEmail(data: EmailOrderData): string {
 export async function sendOrderConfirmation(data: EmailOrderData) {
   if (!process.env.RESEND_API_KEY) return
   try {
+    const resend = getResend()
     await resend.emails.send({
       from: "C427 Medicina Estética <pedidos@c427.com.ar>",
       to: data.customerEmail,
@@ -235,6 +239,7 @@ export async function sendOrderNotificationToNico(data: EmailOrderData) {
   const nicoEmail = process.env.NICO_EMAIL
   if (!process.env.RESEND_API_KEY || !nicoEmail) return
   try {
+    const resend = getResend()
     await resend.emails.send({
       from: "C427 Web <onboarding@resend.dev>",
       to: nicoEmail,
