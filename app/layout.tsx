@@ -113,6 +113,15 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
         />
+        {/* iOS */}
+        <link rel="apple-touch-icon" href="/logoappleweb.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="C427" />
+        {/* Windows */}
+        <meta name="msapplication-TileImage" content="/logowindowsweb.png" />
+        <meta name="msapplication-TileColor" content="#936c43" />
+        <meta name="theme-color" content="#936c43" />
       </head>
       <body className={`font-sans ${inter.variable}`}>
         <CartProvider>
