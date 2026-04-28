@@ -85,19 +85,24 @@ async function registrarVenta(supabase: ReturnType<typeof getSupabase>, order: a
   const customerName = order.shipping_address?.fullName ?? "Cliente web"
   const pedidoId = String(order.id).slice(0, 8).toUpperCase()
 
-  await supabase.from("sales").insert({
+  const { error } = await supabase.from("sales").insert({
     items,
     total: Number(order.total),
     payment_method: metodoPago,
     source: "web",
     type: "direct",
     patient_name: customerName,
-    processed_by: null,
+    processed_by: "WEB C427",
     observations: `Pedido web #${pedidoId} | Tel: ${order.shipping_address?.phone ?? ""} | ${order.shipping_address?.address ?? ""}, ${order.shipping_address?.city ?? ""}`,
     date: new Date().toISOString(),
   })
 
-  console.log("✅ Venta registrada en Sistema C427")
+  if (error) {
+    console.error("❌ Error registrando venta en Sistema C427:", JSON.stringify(error))
+    throw error
+  }
+
+  console.log("✅ Venta registrada en Sistema C427:", pedidoId)
 }
 
 export async function POST(req: NextRequest) {
@@ -153,13 +158,21 @@ export async function POST(req: NextRequest) {
       },
     }
 
-    await Promise.allSettled([
+    const resultados = await Promise.allSettled([
       notificarNico(order),
       registrarVenta(supabase, order, paymentData.payment_type_id ?? ""),
       decrementarStock(supabase, order.order_items ?? []),
       sendOrderConfirmation({ ...emailData, customerEmail: paymentData.payer?.email ?? order.payer_email ?? "" }),
       sendOrderNotificationToNico(emailData),
     ])
+
+    // Log de errores para diagnosticar en Vercel
+    resultados.forEach((r, i) => {
+      const nombres = ["WhatsApp Nico", "Registrar venta", "Decrementar stock", "Email cliente", "Email Nico"]
+      if (r.status === "rejected") {
+        console.error(`❌ [webhook] Falló: ${nombres[i]}:`, r.reason)
+      }
+    })
 
     return NextResponse.json({ ok: true })
   } catch (error) {
