@@ -155,11 +155,31 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "pending", order_id: order.id })
     }
 
-    // Pago rechazado
+    // Pago rechazado — traducir el código de MP a mensaje legible
     await supabase.from("orders").update({ status: "cancelled" }).eq("id", order.id)
+
+    const rejectionMessages: Record<string, string> = {
+      cc_rejected_high_risk:          "El pago fue rechazado por seguridad. Intentá con otra tarjeta o pagá con Mercado Pago.",
+      cc_rejected_call_for_authorize: "Tu banco requiere que los autorices. Llamá al número del dorso de tu tarjeta e intentá de nuevo.",
+      cc_rejected_insufficient_amount:"Saldo insuficiente en la tarjeta.",
+      cc_rejected_bad_filled_card_number: "Número de tarjeta incorrecto. Verificá y volvé a intentar.",
+      cc_rejected_bad_filled_date:    "Fecha de vencimiento incorrecta.",
+      cc_rejected_bad_filled_security_code: "Código de seguridad incorrecto.",
+      cc_rejected_blacklist:          "La tarjeta no está habilitada para este tipo de pago.",
+      cc_rejected_duplicated_payment: "Este pago ya fue procesado anteriormente.",
+      cc_rejected_card_disabled:      "La tarjeta está deshabilitada. Contactá a tu banco.",
+    }
+
+    const statusDetail = result.status_detail ?? ""
+    const friendlyError = rejectionMessages[statusDetail]
+      ?? `Pago rechazado (${statusDetail || "motivo desconocido"}). Intentá con Mercado Pago.`
+
+    console.error("Pago rechazado:", { status: result.status, status_detail: statusDetail })
+
     return NextResponse.json({
       status: "rejected",
-      error: "El pago fue rechazado. Verificá los datos de tu tarjeta.",
+      error: friendlyError,
+      status_detail: statusDetail,
     }, { status: 400 })
 
   } catch (error: any) {
