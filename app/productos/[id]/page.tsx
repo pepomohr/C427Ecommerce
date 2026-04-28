@@ -2,33 +2,39 @@ import { notFound } from "next/navigation"
 import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { getSistemaSupabase } from "@/lib/supabase/sistema"
+import { createClient } from "@supabase/supabase-js"
 import { ProductDetailClient } from "@/components/product-detail-client"
 
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+}
+
 async function getProduct(id: string) {
-  const sistema = getSistemaSupabase()
-  const { data } = await sistema
+  const { data } = await getSupabase()
     .from("products")
-    .select("id, name, description, priceCash, priceList, stock, category, web_category, tags, image_url, web_visible, original_price, usage_mode, usage_results")
+    .select("*")
     .eq("id", id)
-    .eq("web_visible", true)
+    .eq("is_active", true)
     .single()
   if (!data) return null
   return {
     id:             data.id,
     name:           data.name,
     description:    data.description ?? null,
-    price:          Number(data.priceList ?? data.priceCash ?? 0),
+    price:          Number(data.price ?? 0),
     original_price: data.original_price ? Number(data.original_price) : null,
     stock:          Number(data.stock ?? 0),
-    category:       data.web_category ?? data.category ?? null,
+    category:       data.category ?? null,
     tags:           data.tags ?? [],
     image_url:      data.image_url ?? null,
-    is_active:      true,
+    is_active:      data.is_active ?? true,
     usage_mode:     data.usage_mode ?? null,
     usage_results:  data.usage_results ?? null,
-    created_at:     "",
-    updated_at:     "",
+    created_at:     data.created_at ?? "",
+    updated_at:     data.updated_at ?? "",
   }
 }
 

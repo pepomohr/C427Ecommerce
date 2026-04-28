@@ -73,8 +73,13 @@ function ProductsContent() {
     const data = await res.json()
 
     if (Array.isArray(data)) {
-      setProducts(data)
-      setFilteredProducts(data)
+      // Mapeamos los datos para que use 'nombre_web' si existe, si no usa el 'name' de siempre
+      const mappedData = data.map((p: any) => ({
+        ...p,
+        name: p.nombre_web || p.name 
+      }))
+      setProducts(mappedData)
+      setFilteredProducts(mappedData)
     }
     setIsLoading(false)
   }
