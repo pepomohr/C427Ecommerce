@@ -126,8 +126,8 @@ export default function CheckoutPage() {
       )
 
       clearCart()
-      window.open(`https://wa.me/5491160352289?text=${mensaje}`, "_blank")
-      router.push(`/checkout/exito?order=${order.id}&method=whatsapp`)
+      const waUrl = `https://wa.me/5491160352289?text=${mensaje}`
+      router.push(`/checkout/exito?order=${order.id}&method=whatsapp&wa=${encodeURIComponent(waUrl)}`)
 
     } catch (err: any) {
       setError(err?.message || "Error al procesar el pedido. Intentá de nuevo.")

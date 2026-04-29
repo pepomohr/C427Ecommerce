@@ -6,12 +6,14 @@ import { Footer } from "@/components/footer"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ClearCartOnLoad } from "@/components/clear-cart-on-load"
+import { WhatsAppRedirect } from "@/components/whatsapp-redirect"
 import Link from "next/link"
 import { CheckCircle, Package, MessageCircle } from "lucide-react"
 
-async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?: string; method?: string }> }) {
+async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?: string; method?: string; wa?: string }> }) {
   const params = await searchParams
   const isWhatsapp = params.method === "whatsapp"
+  const waUrl = params.wa ? decodeURIComponent(params.wa) : null
   const supabase = await createClient()
 
   const {
@@ -111,6 +113,10 @@ async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?
                     </ul>
                   )}
                 </div>
+
+                {isWhatsapp && waUrl && (
+                  <WhatsAppRedirect url={waUrl} />
+                )}
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button asChild className="flex-1">
