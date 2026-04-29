@@ -24,6 +24,8 @@ const WhatsAppSVG = ({ size = 18 }: { size?: number }) => (
 import Image from "next/image"
 
 type PaymentMethod = "card" | "mp" | "whatsapp"
+// MP temporalmente deshabilitado hasta el viernes mientras se resuelve con soporte
+const SHOW_MP = false
 type DeliveryMethod = "envio" | "retiro"
 
 export default function CheckoutPage() {
@@ -331,7 +333,7 @@ export default function CheckoutPage() {
                 <CardContent className="p-4 sm:p-6 space-y-4">
 
                   {/* Tabs */}
-                  <div className="grid grid-cols-3 gap-2 p-1 bg-muted rounded-lg">
+                  <div className={`grid ${SHOW_MP ? "grid-cols-3" : "grid-cols-2"} gap-2 p-1 bg-muted rounded-lg`}>
                     <button
                       type="button"
                       onClick={() => setPaymentMethod("card")}
@@ -344,6 +346,7 @@ export default function CheckoutPage() {
                       <span>💳</span>
                       <span>Tarjeta</span>
                     </button>
+                    {SHOW_MP && (
                     <button
                       type="button"
                       onClick={() => setPaymentMethod("mp")}
@@ -356,6 +359,7 @@ export default function CheckoutPage() {
                       <Image src="/mercado-pago-logo.png" alt="MP" width={18} height={18} className="object-contain" />
                       <span>Mercado Pago</span>
                     </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => setPaymentMethod("whatsapp")}
@@ -392,7 +396,7 @@ export default function CheckoutPage() {
                   )}
 
                   {/* Panel Mercado Pago */}
-                  {paymentMethod === "mp" && (
+                  {SHOW_MP && paymentMethod === "mp" && (
                     <div className="space-y-4">
                       <div className="flex items-start gap-3 p-4 border rounded-lg bg-blue-50/50 border-blue-200">
                         <ExternalLink className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
