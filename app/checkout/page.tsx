@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useCart } from "@/lib/cart-context"
 import { createClient } from "@/lib/supabase/client"
+import { appendOrderToSheets } from "@/lib/google-sheets"
 import { CardPaymentForm } from "@/components/card-payment-form"
 import { Loader2, MapPin, CreditCard, AlertCircle, ExternalLink, MessageCircle } from "lucide-react"
 import Image from "next/image"
@@ -124,6 +125,17 @@ export default function CheckoutPage() {
         `🆔 Pedido #${pedidoId}\n\n` +
         `Por favor confirmame el alias para realizar la transferencia 🙏`
       )
+
+      // Registrar en Google Sheets
+      appendOrderToSheets({
+        pedidoId: pedidoId,
+        cliente: fullName,
+        telefono: phone,
+        items: items.map((i) => ({ nombre: i.product.name, cantidad: i.quantity })),
+        total: totalPrice,
+        formaPago: "Transferencia",
+        entrega: deliveryMethod === "retiro" ? "Retiro en local - MAIPU 170" : `Envío: ${address}, ${city}`,
+      }).catch(() => {})
 
       clearCart()
       const waUrl = `https://wa.me/5491160352289?text=${mensaje}`

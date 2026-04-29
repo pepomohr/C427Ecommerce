@@ -2,6 +2,7 @@ import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 import { NextRequest, NextResponse } from "next/server"
 import { sendOrderConfirmation, sendOrderNotificationToNico } from "@/lib/emails"
+import { appendOrderToSheets } from "@/lib/google-sheets"
 
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
 
@@ -163,12 +164,36 @@ export async function POST(req: NextRequest) {
       },
     }
 
+    const metodoPago = (() => {
+      const t = paymentData.payment_type_id ?? ""
+      if (t.includes("credit")) return "Tarjeta crédito"
+      if (t.includes("debit")) return "Tarjeta débito"
+      if (t === "account_money") return "Mercado Pago"
+      return "Transferencia"
+    })()
+
+    const entrega = order.shipping_address?.deliveryMethod === "retiro"
+      ? "Retiro en local"
+      : `Envío: ${order.shipping_address?.address ?? ""}, ${order.shipping_address?.city ?? ""}`
+
     const resultados = await Promise.allSettled([
       notificarNico(order),
       registrarVenta(supabase, order, paymentData.payment_type_id ?? ""),
       decrementarStock(supabase, order.order_items ?? []),
       sendOrderConfirmation({ ...emailData, customerEmail: paymentData.payer?.email ?? order.payer_email ?? "" }),
       sendOrderNotificationToNico(emailData),
+      appendOrderToSheets({
+        pedidoId: String(order.id).slice(0, 8).toUpperCase(),
+        cliente: order.shipping_address?.fullName ?? "Cliente web",
+        telefono: order.shipping_address?.phone ?? "-",
+        items: (order.order_items ?? []).map((i: any) => ({
+          nombre: i.product?.name ?? "Producto",
+          cantidad: Number(i.quantity ?? 1),
+        })),
+        total: Number(order.total),
+        formaPago: metodoPago,
+        entrega,
+      }),
     ])
 
     // Log de errores para diagnosticar en Vercel
