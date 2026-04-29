@@ -130,6 +130,8 @@ export default function Testimonials({ userDisplayName, userId }: TestimonialsPr
             align: "start",
             loop: true,
           }}
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore – embla-carousel-autoplay version mismatch (runtime OK)
           plugins={[plugin.current]}
           className="w-full relative px-4 md:px-0"
         >
