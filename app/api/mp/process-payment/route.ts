@@ -54,18 +54,19 @@ async function registrarVenta(
   }))
 
   const pedidoId = String(order.id).slice(0, 8).toUpperCase()
-  await supabase.from("sales").insert({
+  const { error } = await supabase.from("sales").insert({
     items: saleItems,
     total: Number(total),
     payment_method: metodoPago,
     source: "web",
     type: "direct",
     patient_name: shipping?.fullName ?? "Cliente web",
-    processed_by: null,
+    processed_by: "WEB C427",
     observations: `Pedido web #${pedidoId} | Tel: ${shipping?.phone ?? ""} | ${shipping?.address ?? ""}, ${shipping?.city ?? ""}`,
     date: new Date().toISOString(),
   })
-  console.log("✅ Venta tarjeta registrada en Sistema C427")
+  if (error) console.error("❌ Error registrando venta tarjeta:", JSON.stringify(error))
+  else console.log("✅ Venta tarjeta registrada en Sistema C427:", pedidoId)
 }
 
 export async function POST(req: NextRequest) {
