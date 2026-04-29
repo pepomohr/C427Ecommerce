@@ -139,7 +139,9 @@ export default function CheckoutPage() {
 
       const waUrl = `https://wa.me/5491160352289?text=${mensaje}`
       sessionStorage.setItem('pendingWaUrl', waUrl)
-      clearCart()
+      // NO llamamos clearCart() aquí — si lo hacemos, items queda [] y el guard
+      // de arriba (`if items.length === 0`) dispara router.push("/carrito"),
+      // pisando la navegación al success. ClearCartOnLoad en /exito lo limpia.
       router.push(`/checkout/exito?order=${order.id}&method=whatsapp`)
 
     } catch (err: any) {
