@@ -17,6 +17,7 @@ import { Loader2, MapPin, CreditCard, AlertCircle, ExternalLink, MessageCircle }
 import Image from "next/image"
 
 type PaymentMethod = "card" | "mp" | "whatsapp"
+type DeliveryMethod = "envio" | "retiro"
 
 export default function CheckoutPage() {
   const router = useRouter()
@@ -26,6 +27,7 @@ export default function CheckoutPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card")
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("envio")
 
   const [fullName, setFullName] = useState("")
   const [phone, setPhone] = useState("")
@@ -58,7 +60,11 @@ export default function CheckoutPage() {
   }
 
   function validateShipping() {
-    if (!fullName || !phone || !address || !city || !postalCode) {
+    if (!fullName || !phone) {
+      setError("Por favor completá nombre y teléfono.")
+      return false
+    }
+    if (deliveryMethod === "envio" && (!address || !city || !postalCode)) {
       setError("Por favor completá todos los campos de envío.")
       return false
     }
@@ -80,7 +86,9 @@ export default function CheckoutPage() {
           user_id: user.id,
           total: totalPrice,
           status: "pending_whatsapp",
-          shipping_address: { fullName, phone, address, city, postalCode },
+          shipping_address: deliveryMethod === "retiro"
+            ? { fullName, phone, deliveryMethod: "retiro", address: "Retiro en local - MAIPU 170" }
+            : { fullName, phone, address, city, postalCode, deliveryMethod: "envio" },
           payer_email: user.email ?? "",
         })
         .select()
@@ -102,13 +110,17 @@ export default function CheckoutPage() {
         .map((i) => `• ${i.product.name} x${i.quantity} — $${(i.product.price * i.quantity).toLocaleString("es-AR")}`)
         .join("\n")
 
+      const entregaLinea = deliveryMethod === "retiro"
+        ? `🏠 *Entrega:* Retiro en local — MAIPU 170`
+        : `📍 *Dirección:* ${address}, ${city} (${postalCode})`
+
       const mensaje = encodeURIComponent(
         `Hola! 👋 Quiero hacer un pedido en *C427 Medicina Estética*\n\n` +
         `📦 *Productos:*\n${productLines}\n\n` +
         `💰 *Total: $${totalPrice.toLocaleString("es-AR")}*\n\n` +
         `👤 *Nombre:* ${fullName}\n` +
         `📞 *Tel:* ${phone}\n` +
-        `📍 *Dirección:* ${address}, ${city} (${postalCode})\n\n` +
+        `${entregaLinea}\n\n` +
         `🆔 Pedido #${pedidoId}\n\n` +
         `Por favor confirmame el alias para realizar la transferencia 🙏`
       )
@@ -135,7 +147,9 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           items,
           email: user?.email ?? "",
-          shipping: { fullName, phone, address, city, postalCode },
+          shipping: deliveryMethod === "retiro"
+            ? { fullName, phone, deliveryMethod: "retiro", address: "Retiro en local - MAIPU 170" }
+            : { fullName, phone, address, city, postalCode, deliveryMethod: "envio" },
           userId: user.id,
         }),
       })
@@ -190,10 +204,62 @@ export default function CheckoutPage() {
             {/* Columna Izquierda */}
             <div className="lg:col-span-2 space-y-6">
 
-              {/* Datos de envío */}
+              {/* Método de entrega */}
               <Card>
                 <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-lg">Información de Envío</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-lg">Método de Entrega</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 space-y-3">
+                  {/* Opción envío */}
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryMethod("envio")}
+                    className={`w-full text-left p-4 border-2 rounded-lg transition-all ${
+                      deliveryMethod === "envio"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">📦</span>
+                      <div>
+                        <p className="font-semibold text-sm">Envío a domicilio</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Te contactamos para coordinar una vez confirmado el pago.</p>
+                      </div>
+                      {deliveryMethod === "envio" && <span className="ml-auto text-primary font-bold text-lg">✓</span>}
+                    </div>
+                  </button>
+                  {/* Opción retiro */}
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryMethod("retiro")}
+                    className={`w-full text-left p-4 border-2 rounded-lg transition-all ${
+                      deliveryMethod === "retiro"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">🏠</span>
+                      <div>
+                        <p className="font-semibold text-sm">Retiro en local</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">MAIPU 170 — Te avisamos cuando tu pedido esté listo.</p>
+                      </div>
+                      {deliveryMethod === "retiro" && <span className="ml-auto text-primary font-bold text-lg">✓</span>}
+                    </div>
+                  </button>
+                </CardContent>
+              </Card>
+
+              {/* Datos de contacto / envío */}
+              <Card>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-lg">
+                    {deliveryMethod === "retiro" ? "Datos de Contacto" : "Información de Envío"}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4 p-4 sm:p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,38 +272,30 @@ export default function CheckoutPage() {
                       <Input id="phone" type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="11 1234-5678" />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address" className="text-sm">Dirección *</Label>
-                    <Input id="address" required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Av. Corrientes 1234" />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city" className="text-sm">Ciudad *</Label>
-                      <Input id="city" required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Buenos Aires" />
+                  {deliveryMethod === "envio" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="address" className="text-sm">Dirección *</Label>
+                        <Input id="address" required value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Av. Corrientes 1234" />
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="city" className="text-sm">Ciudad *</Label>
+                          <Input id="city" required value={city} onChange={(e) => setCity(e.target.value)} placeholder="Buenos Aires" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="postalCode" className="text-sm">Código Postal *</Label>
+                          <Input id="postalCode" required value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="C1425" />
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {deliveryMethod === "retiro" && (
+                    <div className="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg text-sm text-primary">
+                      <MapPin className="h-4 w-4 shrink-0" />
+                      <span>Retirás en <strong>MAIPU 170</strong>. Te avisamos por WhatsApp cuando esté listo.</span>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="postalCode" className="text-sm">Código Postal *</Label>
-                      <Input id="postalCode" required value={postalCode} onChange={(e) => setPostalCode(e.target.value)} placeholder="C1425" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Método de entrega */}
-              <Card>
-                <CardHeader className="p-4 sm:p-6">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-lg">Método de Entrega</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6">
-                  <div className="p-4 border rounded-lg bg-muted/50">
-                    <p className="font-semibold text-sm sm:text-base">Envío a domicilio</p>
-                    <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                      Te contactaremos para coordinar el envío una vez confirmado el pago.
-                    </p>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
 
