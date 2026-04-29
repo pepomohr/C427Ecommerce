@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useState, Suspense, useEffect } from "react"
+import { useState, Suspense } from "react"
 
 function LoginForm() {
   const [email, setEmail] = useState("")
@@ -21,55 +21,18 @@ function LoginForm() {
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get("redirect") || "/"
 
-  useEffect(() => {
-    const script = document.createElement("script")
-    script.src = "https://accounts.google.com/gsi/client"
-    script.async = true
-    script.defer = true
-    document.head.appendChild(script)
-    return () => { document.head.removeChild(script) }
-  }, [])
-
-  const handleGoogleGSI = async () => {
+  const handleGoogleLogin = async () => {
     setOauthLoading("google")
     setError(null)
     const supabase = createClient()
-
-    const google = (window as any).google
-    if (!google?.accounts?.id) {
-      // Fallback a OAuth redirect si GSI no cargó
-      await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}` },
-      })
-      return
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}` },
+    })
+    if (error) {
+      setError("Error al conectar con Google")
+      setOauthLoading(null)
     }
-
-    google.accounts.id.initialize({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-      callback: async ({ credential }: { credential: string }) => {
-        const { error } = await supabase.auth.signInWithIdToken({
-          provider: "google",
-          token: credential,
-        })
-        if (error) {
-          setError("Error al iniciar sesión con Google")
-          setOauthLoading(null)
-        } else {
-          router.push(`${redirectTo}?welcome=1`)
-          router.refresh()
-        }
-      },
-    })
-    google.accounts.id.prompt((notification: any) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        // Si One Tap no se muestra, fallback a OAuth
-        supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: { redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}` },
-        })
-      }
-    })
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -88,22 +51,6 @@ function LoginForm() {
       setError(error instanceof Error ? error.message : "Ocurrió un error al iniciar sesión")
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const handleOAuth = async (provider: "google" | "facebook") => {
-    setOauthLoading(provider)
-    setError(null)
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=${redirectTo}`,
-      },
-    })
-    if (error) {
-      setError("Error al conectar con " + (provider === "google" ? "Google" : "Facebook"))
-      setOauthLoading(null)
     }
   }
 
@@ -130,7 +77,7 @@ function LoginForm() {
                 variant="outline"
                 className="w-full flex items-center justify-center gap-3 h-11"
                 disabled={!!oauthLoading}
-                onClick={handleGoogleGSI}
+                onClick={handleGoogleLogin}
               >
                 {oauthLoading === "google" ? (
                   <span className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
