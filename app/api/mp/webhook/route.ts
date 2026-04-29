@@ -105,6 +105,11 @@ async function registrarVenta(supabase: ReturnType<typeof getSupabase>, order: a
   console.log("✅ Venta registrada en Sistema C427:", pedidoId)
 }
 
+// MP hace un GET para verificar que el endpoint existe antes de enviar notificaciones
+export async function GET() {
+  return NextResponse.json({ ok: true })
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
