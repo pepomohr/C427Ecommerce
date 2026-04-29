@@ -1,18 +1,25 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function WhatsAppRedirect({ url }: { url: string }) {
+export function WhatsAppRedirect() {
+  const [url, setUrl] = useState<string | null>(null)
+
   useEffect(() => {
-    // Abre WhatsApp automáticamente al cargar la página de éxito
-    // window.location.href funciona en móvil y desktop sin ser bloqueado
-    const timer = setTimeout(() => {
-      window.location.href = url
-    }, 800)
-    return () => clearTimeout(timer)
-  }, [url])
+    const waUrl = sessionStorage.getItem('pendingWaUrl')
+    if (waUrl) {
+      sessionStorage.removeItem('pendingWaUrl')
+      setUrl(waUrl)
+      // Abre WhatsApp automáticamente — window.location.href no es bloqueado por navegadores
+      setTimeout(() => {
+        window.location.href = waUrl
+      }, 600)
+    }
+  }, [])
+
+  if (!url) return null
 
   return (
     <Button

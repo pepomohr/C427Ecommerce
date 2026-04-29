@@ -10,10 +10,9 @@ import { WhatsAppRedirect } from "@/components/whatsapp-redirect"
 import Link from "next/link"
 import { CheckCircle, Package, MessageCircle } from "lucide-react"
 
-async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?: string; method?: string; wa?: string }> }) {
+async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?: string; method?: string }> }) {
   const params = await searchParams
   const isWhatsapp = params.method === "whatsapp"
-  const waUrl = params.wa ? decodeURIComponent(params.wa) : null
   const supabase = await createClient()
 
   const {
@@ -114,8 +113,8 @@ async function SuccessContent({ searchParams }: { searchParams: Promise<{ order?
                   )}
                 </div>
 
-                {isWhatsapp && waUrl && (
-                  <WhatsAppRedirect url={waUrl} />
+                {isWhatsapp && (
+                  <WhatsAppRedirect />
                 )}
 
                 <div className="flex flex-col sm:flex-row gap-3">
