@@ -15,8 +15,8 @@ async function registrarVenta(supabase: ReturnType<typeof getSupabase>, order: a
   const metodoPago = paymentMethod?.includes("credit") || paymentMethod?.includes("debit") ? "tarjeta" : "transferencia"
 
   const items = order.order_items?.map((i: any) => ({
-    itemId: i.product?.id ?? i.product_id ?? "web",
-    itemName: i.product?.name ?? "Producto ecommerce",
+    itemId: i.product_id ?? "web",
+    itemName: "Producto ecommerce",
     quantity: i.quantity,
     price: Number(i.price ?? 0),
     priceCashReference: Number(i.price ?? 0),
@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, message: "La orden ya estaba marcada como pagada", orderId })
     }
 
-    // Actualizar orden a pagada
+    // Actualizar orden a pagada (sin join para evitar error de schema cache)
     const { data: order, error: updateError } = await supabase
       .from("orders")
       .update({
@@ -94,19 +94,27 @@ export async function POST(req: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", orderId)
-      .select("*, order_items(quantity, price, product_id, product:products(name, id)), shipping_address")
+      .select("id, total, shipping_address, payer_email")
       .single()
 
     if (updateError || !order) {
       return NextResponse.json({ error: `Error actualizando orden: ${updateError?.message}` }, { status: 500 })
     }
 
+    // Obtener items por separado
+    const { data: orderItems } = await supabase
+      .from("order_items")
+      .select("quantity, price, product_id")
+      .eq("order_id", orderId)
+
+    const orderWithItems = { ...order, order_items: orderItems ?? [] }
+
     // Registrar venta en Sistema C427
-    await registrarVenta(supabase, order, paymentData.payment_type_id ?? "")
+    await registrarVenta(supabase, orderWithItems, paymentData.payment_type_id ?? "")
 
     // Decrementar stock
-    for (const item of order.order_items ?? []) {
-      const productId = item.product_id ?? item.product?.id
+    for (const item of orderItems ?? []) {
+      const productId = item.product_id
       if (!productId) continue
       const { data } = await supabase.from("products").select("stock").eq("id", productId).single()
       if (data) {
