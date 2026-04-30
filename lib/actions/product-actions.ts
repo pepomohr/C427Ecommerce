@@ -51,8 +51,8 @@ export async function getProductsForQuiz(productIds: string[]): Promise<ProductD
 
     if (!data) return [];
 
-    // 5. Filtro de seguridad por si hay productos desactivados
-    const result = data.filter(p => p.is_active !== false);
+    // 5. Filtro: activos y con stock disponible
+    const result = data.filter(p => p.is_active !== false && (p.stock ?? 1) > 0);
 
     // 6. Logs de Debugging para David (Mirá la terminal de VS Code)
     console.log(`\n--- 🧪 DEBUG QUIZ C427 ---`);

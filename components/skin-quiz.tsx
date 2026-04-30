@@ -28,58 +28,58 @@ const RUTINAS = {
     "titulo": "Rutina CONFORT y Reparación",
     "descripcion": "Para pieles secas, sensibles y/o deshidratadas. Aporta elasticidad, calma y reduce el enrojecimiento.",
     "productos": [
-      { id: "572e96e6-64db-4a56-a3ae-b24e140e8e59" },
-      { id: "ce9476c8-5bf4-40b3-b623-3ec07afd47bf" },
-      { id: "4aa7a511-e2eb-494c-ad8b-53e0271c2681" },
-      { id: "29d64f13-71d0-40b3-9ab6-9711e386f5e1" }
+      { id: "42b9eee4-a910-465e-80f1-2565df0b3e2d" }, // Espuma de limpieza
+      { id: "a9d05294-d1ad-4baf-926c-ce9dc66fa1b3" }, // Agua micelar
+      { id: "653edf0a-7129-41df-b5d1-678230abf1a9" }, // Hydra Intense
+      { id: "8bb4ab14-bd0a-48cb-9a41-e8567fa87381" }  // Rosatopic Biosensitive
     ]
   },
   "seborreica_acne": {
     "titulo": "Rutina CONTROL & PURIFICANTE",
     "descripcion": "Regula el sebo, previene el acné y mejora la textura sin resecar.",
     "productos": [
-      { id: "a6c7b5e1-487c-424d-aaa0-736b6ba863b1" },
-      { id: "76176f07-9e36-4bf1-b701-d23e21f33615" },
-      { id: "1e37a552-b389-4552-b45d-46c12ec9cb47" }
+      { id: "978e84cf-bb97-4584-a784-8e81b7d2d4d7" }, // Acneplur Foam (espuma)
+      { id: "aab6aeb1-3dcc-4412-a91e-f739eccc9332" }, // Acne Plur Hydra
+      { id: "bbf24548-91e9-4dee-86a2-b72e2129f676" }  // Ultra defense (glicolico)
     ]
   },
   "madura_50": {
     "titulo": "Rutina ANTIAGE 50+ ORO",
     "descripcion": "Nutrición profunda para pieles maduras. Aporta vitalidad y rellena arrugas.",
     "productos": [
-      { id: "62d307f7-544f-424c-977a-36f6f24cfcb2" },
-      { id: "32fbfd96-d7e1-4e7e-9394-dc97ba902e3a" },
-      { id: "5d401164-c311-4658-b17e-db60893e4c7f" },
-      { id: "b6f995b4-84c0-49ff-b043-bb26507805d5" }
+      { id: "e378717c-963e-4958-996d-945dff925dad" }, // Hydra Oro
+      { id: "07df64da-2c16-4879-a986-96fc72d93615" }, // Serum Oro
+      { id: "d662848c-4144-4d77-856a-fb4e6058e169" }, // Anti Age360 (retinol)
+      { id: "c68d8c4f-9e5f-4512-a98b-ad9ae7f273d6" }  // Proteo Radiance
     ]
   },
   "mas_40": {
     "titulo": "Rutina ANTIAGE 40+ PROFUNDA",
     "descripcion": "Rutina completa enfocada en suavizar arrugas, mejorar la firmeza y la hidratación.",
     "productos": [
-      { id: "572e96e6-64db-4a56-a3ae-b24e140e8e59" },
-      { id: "5d401164-c311-4658-b17e-db60893e4c7f" },
-      { id: "b6f995b4-84c0-49ff-b043-bb26507805d5" }
+      { id: "653edf0a-7129-41df-b5d1-678230abf1a9" }, // Hydra Intense
+      { id: "d662848c-4144-4d77-856a-fb4e6058e169" }, // Anti Age360 (retinol)
+      { id: "07df64da-2c16-4879-a986-96fc72d93615" }  // Serum Oro
     ]
   },
   "mas_30": {
     "titulo": "Rutina BÁSICA 30+ PREVENTIVA",
     "descripcion": "Foco en la prevención y la defensa celular. Mantiene la piel joven y luminosa.",
     "productos": [
-      { id: "572e96e6-64db-4a56-a3ae-b24e140e8e59" },
-      { id: "be5b1f6f-ed46-4bf2-876a-6b2182741c04" },
-      { id: "7981d8f9-4186-495e-948b-4c4727c7ee8c" },
-      { id: "29d64f13-71d0-40b3-9ab6-9711e386f5e1" }
+      { id: "995636e8-c8de-49ef-8b50-13cb02690271" }, // Hydra Light
+      { id: "2f991d1f-e029-43ba-99d7-7b13c9978268" }, // Vitamina C unidosis
+      { id: "ea7f8feb-b226-432f-9693-871d0ff838b9" }, // Serum Verde Redensity
+      { id: "096866ef-2dcf-41d9-9659-0debd3a523c4" }  // Protector solar 100ml
     ]
   },
   "mas_20": {
     "titulo": "Rutina SIMPLE 20+ DIARIA",
     "descripcion": "Rutina de inicio para pieles jóvenes que buscan hidratación y luminosidad.",
     "productos": [
-      { id: "572e96e6-64db-4a56-a3ae-b24e140e8e59" },
-      { id: "ce9476c8-5bf4-40b3-b623-3ec07afd47bf" },
-      { id: "7981d8f9-4186-495e-948b-4c4727c7ee8c" },
-      { id: "b1e9e97d-4ff1-41e3-b85a-aa13ddaa15c1" }
+      { id: "42b9eee4-a910-465e-80f1-2565df0b3e2d" }, // Espuma de limpieza
+      { id: "a9d05294-d1ad-4baf-926c-ce9dc66fa1b3" }, // Agua micelar
+      { id: "995636e8-c8de-49ef-8b50-13cb02690271" }, // Hydra Light
+      { id: "e55725c5-375f-4cab-8b97-ae9572a3ba8f" }  // Bruma Spray Mist
     ]
   }
 }
