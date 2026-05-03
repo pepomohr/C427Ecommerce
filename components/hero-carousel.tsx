@@ -17,6 +17,14 @@ export function HeroCarousel() {
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: false })
   )
+  const [hotSaleStatus, setHotSaleStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
+  React.useEffect(() => {
+    const now = new Date()
+    const start = new Date(2026, 4, 11)
+    const end   = new Date(2026, 4, 14)
+    if (now >= end) setHotSaleStatus('ended')
+    else if (now >= start) setHotSaleStatus('live')
+  }, [])
 
   const handleOpenChat = () => {
     window.dispatchEvent(new Event('openAuraChat'));
@@ -29,47 +37,59 @@ export function HeroCarousel() {
       opts={{ loop: true }}
     >
       <CarouselContent>
-        {/* SLIDE 1: OFERTAS DE ABRIL */}
+        {/* SLIDE 1: HOT SALE (reemplaza el 50% OFF) */}
+        {hotSaleStatus !== 'ended' && (
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0">
-            
-            {/* Foto vertical para CELU */}
             <Image
               src="/ofertas_celu.png"
-              alt="Ofertas de Abril - 10% off en transferencia en toda la web - C427 Medicina Estética"
+              alt="Hot Sale C427"
               fill
               className="object-cover object-center md:hidden"
               priority
             />
-            {/* Foto panorámica para DESKTOP */}
             <Image
               src="/ofertas.png"
-              alt="Ofertas de Abril - 10% off en transferencia en toda la web - C427 Medicina Estética"
+              alt="Hot Sale C427"
               fill
               className="object-cover object-center hidden md:block"
               priority
             />
-
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-black/45" />
-
+            <div className="absolute inset-0 bg-black/55" />
             <div className="container relative z-10 pl-6 pr-4 md:px-6">
               <div className="max-w-xl text-left text-white">
-                <h1 className="text-2xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
-                  50% OFF EN TODA LA WEB
-                </h1>
-                <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[250px] md:max-w-md">
-                  Válido hasta el 30 de abril.
-                </p>
-                <div className="flex gap-3 justify-start">
-                  <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl bg-primary text-white border-none tracking-widest font-bold uppercase hover:bg-primary/90">
-                    <Link href="/productos">COMPRAR AHORA &gt;</Link>
-                  </Button>
-                </div>
+                {hotSaleStatus === 'live' ? (
+                  <>
+                    <p className="text-xs md:text-base font-bold tracking-widest uppercase text-primary mb-1 drop-shadow">🔥 Hot Sale</p>
+                    <h1 className="text-3xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
+                      ¡HOY ES EL DÍA!
+                    </h1>
+                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[250px] md:max-w-md">
+                      Descuentos exclusivos del 11 al 13 de Mayo.
+                    </p>
+                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl bg-primary text-white border-none tracking-widest font-bold uppercase hover:bg-primary/90">
+                      <Link href="/hot-sale">VER OFERTAS &gt;</Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs md:text-base font-bold tracking-widest uppercase text-primary mb-1 drop-shadow">🔥 Se viene</p>
+                    <h1 className="text-3xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
+                      HOT SALE
+                    </h1>
+                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[250px] md:max-w-md">
+                      11, 12 y 13 de Mayo — Descuentos exclusivos por tiempo limitado.
+                    </p>
+                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl bg-primary text-white border-none tracking-widest font-bold uppercase hover:bg-primary/90">
+                      <Link href="/hot-sale">VER PREVIEW &gt;</Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </section>
         </CarouselItem>
+        )}
 
         {/* SLIDE 2: AGENTE IA */}
         <CarouselItem>

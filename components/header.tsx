@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
@@ -89,6 +90,27 @@ function MobileCategory({ title, links }: { title: string; links: { name: string
   )
 }
 
+// ---------- HOT SALE BANNER ----------
+function HotSaleBanner() {
+  const [status, setStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
+  React.useEffect(() => {
+    const now = new Date()
+    const start = new Date(2026, 4, 11)  // 11 Mayo
+    const end   = new Date(2026, 4, 14)  // 14 Mayo (exclusivo)
+    if (now >= end)   setStatus('ended')
+    else if (now >= start) setStatus('live')
+  }, [])
+  if (status === 'ended') return null
+  return (
+    <div className="bg-primary text-primary-foreground py-2 px-4 text-center text-[10px] md:text-sm font-medium tracking-wide">
+      {status === 'live'
+        ? "🔥 HOT SALE — ¡Aprovechá hoy y mañana! Solo hasta el 13 de Mayo"
+        : "🔥 HOT SALE se viene — 11, 12 y 13 de Mayo"}
+    </div>
+  )
+}
+// ---------- END HOT SALE BANNER ----------
+
 export function Header({ isAuthenticated, isAdmin }: HeaderProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -105,10 +127,8 @@ export function Header({ isAuthenticated, isAdmin }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 w-full flex flex-col bg-background/95 backdrop-blur-md border-b border-border/40 shadow-sm">
-      {/* Banner Promo */}
-      <div className="bg-primary text-primary-foreground py-2 px-4 text-center text-[10px] md:text-sm font-medium tracking-wide">
-        🔥 50% OFF en toda la web — válido hasta el 30 de abril
-      </div>
+      {/* Banner Promo — Hot Sale */}
+      <HotSaleBanner />
 
       {/* Main Header Row */}
       <div className="container flex h-16 md:h-24 items-center justify-between px-4 md:px-6 text-black">
