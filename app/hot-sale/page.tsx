@@ -18,6 +18,10 @@ const HOT_SALE_PRODUCTS = [
 
 const DESCUENTO = 0.15
 
+// Precio mínimo para Gift Cards (precio variable, no viene de DB)
+const GIFT_CARD_MIN_PRICE = 50000
+const GIFT_CARD_ID = "9cabe14f-8894-4ec5-b841-4c06b8e96493"
+
 function getHotSaleStatus(): 'preview' | 'live' | 'ended' {
   const now = new Date()
   const start = new Date(2026, 4, 11)
@@ -99,9 +103,11 @@ export default function HotSalePage() {
             {loading ? (
               <p className="text-center py-16 text-muted-foreground animate-pulse">Cargando ofertas...</p>
             ) : products.map(prod => {
-              const precio = prod.price ?? 0
-              const precioDesc = Math.round(precio * (1 - DESCUENTO))
+              const isGiftCard = prod.id === GIFT_CARD_ID
+              const precioBase = isGiftCard ? GIFT_CARD_MIN_PRICE : (prod.price ?? 0)
+              const precioDesc = Math.round(precioBase * (1 - DESCUENTO))
               const nombre = prod.nombre_web || prod.name
+              const prefijo = isGiftCard ? 'Desde ' : ''
               return (
                 <div key={prod.id} className="flex items-center gap-5 border border-border rounded-2xl p-5 bg-white shadow-sm hover:shadow-md transition-shadow">
                   {prod.image_url && (
@@ -119,20 +125,30 @@ export default function HotSalePage() {
                     <div className="mt-2 flex items-baseline gap-2">
                       {status === 'live' ? (
                         <>
-                          <span className="text-2xl font-extrabold text-primary">${precioDesc.toLocaleString('es-AR')}</span>
-                          <span className="text-sm text-muted-foreground line-through">${precio.toLocaleString('es-AR')}</span>
+                          <span className="text-2xl font-extrabold text-primary">{prefijo}${precioDesc.toLocaleString('es-AR')}</span>
+                          <span className="text-sm text-muted-foreground line-through">{prefijo}${precioBase.toLocaleString('es-AR')}</span>
                         </>
                       ) : (
-                        <span className="text-xl font-bold text-foreground">${precio.toLocaleString('es-AR')}</span>
+                        <span className="text-xl font-bold text-foreground">{prefijo}${precioBase.toLocaleString('es-AR')}</span>
                       )}
                     </div>
                     {status === 'preview' && (
                       <p className="text-xs text-muted-foreground mt-1">El descuento se aplica a partir del 11/05</p>
                     )}
+                    {isGiftCard && status === 'live' && (
+                      <p className="text-xs text-muted-foreground mt-1">Escribinos por WhatsApp para coordinar</p>
+                    )}
                   </div>
-                  {status === 'live' && (
+                  {status === 'live' && !isGiftCard && (
                     <Button size="sm" onClick={() => handleAdd(prod)} className="shrink-0 gap-1.5">
                       <ShoppingCart className="h-4 w-4" /> Agregar
+                    </Button>
+                  )}
+                  {status === 'live' && isGiftCard && (
+                    <Button size="sm" asChild className="shrink-0 gap-1.5 bg-green-600 hover:bg-green-700">
+                      <a href="https://wa.me/5491160352289?text=Hola!%20quiero%20comprar%20una%20Gift%20Card%20con%20el%20descuento%20del%20Hot%20Sale%20🔥" target="_blank" rel="noopener noreferrer">
+                        WhatsApp
+                      </a>
                     </Button>
                   )}
                 </div>
