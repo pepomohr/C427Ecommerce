@@ -15,19 +15,27 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
+// Bumpeá este número cada vez que quieras vaciar los carritos de todos
+const CART_VERSION = "v2"
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([])
   const [isLoaded, setIsLoaded] = useState(false)
 
-  // Load cart from localStorage on mount
+  // Load cart from localStorage on mount — si la versión no coincide, se limpia
   useEffect(() => {
+    const savedVersion = localStorage.getItem("cart_version")
     const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
+    if (savedCart && savedVersion === CART_VERSION) {
       try {
         setItems(JSON.parse(savedCart))
       } catch (error) {
         console.error("Error loading cart:", error)
       }
+    } else {
+      // Versión vieja o inexistente → limpiar carrito
+      localStorage.removeItem("cart")
+      localStorage.setItem("cart_version", CART_VERSION)
     }
     setIsLoaded(true)
   }, [])
@@ -36,6 +44,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoaded) {
       localStorage.setItem("cart", JSON.stringify(items))
+      localStorage.setItem("cart_version", CART_VERSION)
     }
   }, [items, isLoaded])
 
