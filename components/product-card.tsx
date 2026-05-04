@@ -12,8 +12,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
+  const displayName = product.nombre_web || product.name
   const isOutOfStock = product.stock === 0
-  const isGiftCard = product.name.toLowerCase().includes("gift card")
+  const isGiftCard = displayName.toLowerCase().includes("gift card")
   const isVideo = product.image_url?.toLowerCase().endsWith('.mp4') || product.image_url?.toLowerCase().endsWith('.webm')
   
   return (
@@ -33,7 +34,7 @@ export function ProductCard({ product }: ProductCardProps) {
             ) : (
               <Image
                 src={product.image_url || "/placeholder.svg?height=400&width=400"}
-                alt={product.name}
+                alt={displayName}
                 fill
                 className="object-contain transition-transform duration-700 group-hover:scale-105 p-2"
               />
@@ -55,7 +56,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <CardContent className="flex flex-col flex-1 p-3 sm:p-6">
         <Link href={`/productos/${product.id}`}>
           <h3 className="font-bold text-base sm:text-xl mb-1 sm:mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300 tracking-tight uppercase">
-            {product.name}
+            {displayName}
           </h3>
         </Link>
         <p className="text-[11px] sm:text-sm text-muted-foreground line-clamp-1 mb-2 sm:mb-4 leading-relaxed font-light tracking-wide">

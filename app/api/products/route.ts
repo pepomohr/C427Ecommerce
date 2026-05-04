@@ -49,7 +49,10 @@ export async function GET(req: NextRequest) {
     if (q) {
       const lower = q.toLowerCase()
       products = products.filter(
-        (p: any) => p.name?.toLowerCase().includes(lower) || p.description?.toLowerCase().includes(lower)
+        (p: any) =>
+          p.nombre_web?.toLowerCase().includes(lower) ||
+          p.name?.toLowerCase().includes(lower) ||
+          p.description?.toLowerCase().includes(lower)
       )
     }
 

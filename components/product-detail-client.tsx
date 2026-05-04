@@ -14,7 +14,8 @@ interface ProductDetailClientProps {
 }
 
 export function ProductDetailClient({ product }: ProductDetailClientProps) {
-  const isGiftCard = product.name.toLowerCase().includes("gift card")
+  const displayName = product.nombre_web || product.name
+  const isGiftCard = displayName.toLowerCase().includes("gift card")
   
   const giftCardOptions = [
     { label: "Gift Card $50.000", price: 50000 },
@@ -44,7 +45,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           <div className="relative aspect-square w-full max-w-[350px] md:max-w-[450px] overflow-hidden rounded-2xl bg-muted/30 border border-primary/5 shadow-sm">
             <Image
               src={product.image_url || "/placeholder.svg?height=600&width=600"}
-              alt={product.name}
+              alt={displayName}
               fill
               className="object-contain p-4 md:p-8 transition-all duration-500"
               priority
@@ -64,7 +65,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               {product.category}
             </Badge>
             <h1 className="text-2xl md:text-3xl font-bold mb-2 tracking-tight uppercase leading-tight">
-              {isGiftCard ? selectedOption.label : product.name}
+              {isGiftCard ? selectedOption.label : displayName}
             </h1>
             
             <div className="flex items-baseline gap-3 mb-4 flex-wrap">

@@ -1,6 +1,7 @@
 export interface Product {
   id: string
   name: string
+  nombre_web?: string | null  // Nombre para mostrar en el ecommerce
   description: string | null
   price: number
   original_price: number | null

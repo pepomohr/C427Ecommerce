@@ -70,7 +70,7 @@ export default function CartPage() {
                         <div className="relative w-24 h-24 rounded-md overflow-hidden bg-muted/20 flex items-center justify-center p-2">
                           <Image
                             src={item.product.image_url || "/placeholder.svg?height=200&width=200"}
-                            alt={item.product.name}
+                            alt={item.product.nombre_web || item.product.name}
                             fill
                             className="object-contain"
                           />
@@ -81,7 +81,7 @@ export default function CartPage() {
                       <div className="flex-1 min-w-0">
                         <Link href={`/productos/${item.product.id}`}>
                           <h3 className="font-semibold mb-1 hover:text-primary transition-colors">
-                            {item.product.name}
+                            {item.product.nombre_web || item.product.name}
                           </h3>
                         </Link>
                         <p className="text-sm text-muted-foreground mb-2">{item.product.category}</p>

@@ -23,6 +23,7 @@ async function getProduct(id: string) {
   return {
     id:             data.id,
     name:           data.name,
+    nombre_web:     data.nombre_web ?? null,
     description:    data.description ?? null,
     price:          Number(data.price ?? 0),
     original_price: data.original_price ? Number(data.original_price) : null,
