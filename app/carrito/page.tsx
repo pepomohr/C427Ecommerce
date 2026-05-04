@@ -86,7 +86,7 @@ export default function CartPage() {
                         </Link>
                         <p className="text-sm text-muted-foreground mb-2">{item.product.category}</p>
                         <p className="font-bold" style={{ color: "oklch(0.35 0.08 160)" }}>
-                          ${item.product.price.toLocaleString("es-AR")}
+                          ${(item.product.price ?? 0).toLocaleString("es-AR")}
                         </p>
                       </div>
 
@@ -130,7 +130,7 @@ export default function CartPage() {
                         </div>
 
                         <p className="text-sm font-semibold">
-                          ${(item.product.price * item.quantity).toLocaleString("es-AR")}
+                          ${((item.product.price ?? 0) * item.quantity).toLocaleString("es-AR")}
                         </p>
                       </div>
                     </div>
