@@ -47,6 +47,7 @@ export const metadata: Metadata = {
   },
   // --- AQUÍ ESTÁN TUS ICONOS AHORA ---
   icons: {
+    icon: "/favicon.png",
     apple: "/logoappleweb.png", // Equivalente a <link rel="apple-touch-icon" ...>
     other: [
       {
