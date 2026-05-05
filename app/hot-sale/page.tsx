@@ -12,15 +12,14 @@ import { useCart } from "@/lib/cart-context"
 import { useToast } from "@/components/ui/use-toast"
 
 const HOT_SALE_PRODUCTS = [
-  "9cabe14f-8894-4ec5-b841-4c06b8e96493", // Gift Card General
   "2f991d1f-e029-43ba-99d7-7b13c9978268", // Vitamina C unidosis
+  "145f341a-b4e9-42a2-a632-f192aeb70e50", // Glisodin
+  "42b9eee4-a910-465e-80f1-2565df0b3e2d", // Espuma de Limpieza
+  "ca982517-4dca-4cc6-8169-51d931c71ea4", // Serum Hyaluronic
+  "ea7f8feb-b226-432f-9693-871d0ff838b9", // Serum Redensity
 ]
 
 const DESCUENTO = 0.15
-
-// Precio mínimo para Gift Cards (precio variable, no viene de DB)
-const GIFT_CARD_MIN_PRICE = 50000
-const GIFT_CARD_ID = "9cabe14f-8894-4ec5-b841-4c06b8e96493"
 
 function getHotSaleStatus(): 'preview' | 'live' | 'ended' {
   const now = new Date()
@@ -103,11 +102,9 @@ export default function HotSalePage() {
             {loading ? (
               <p className="text-center py-16 text-muted-foreground animate-pulse">Cargando ofertas...</p>
             ) : products.map(prod => {
-              const isGiftCard = prod.id === GIFT_CARD_ID
-              const precioBase = isGiftCard ? GIFT_CARD_MIN_PRICE : (prod.price ?? 0)
+              const precioBase = prod.price ?? 0
               const precioDesc = Math.round(precioBase * (1 - DESCUENTO))
               const nombre = prod.nombre_web || prod.name
-              const prefijo = isGiftCard ? 'Desde ' : ''
               return (
                 <div key={prod.id} className="flex items-center gap-5 border border-border rounded-2xl p-5 bg-white shadow-sm hover:shadow-md transition-shadow">
                   {prod.image_url && (
@@ -125,30 +122,20 @@ export default function HotSalePage() {
                     <div className="mt-2 flex items-baseline gap-2">
                       {status === 'live' ? (
                         <>
-                          <span className="text-2xl font-extrabold text-primary">{prefijo}${precioDesc.toLocaleString('es-AR')}</span>
-                          <span className="text-sm text-muted-foreground line-through">{prefijo}${precioBase.toLocaleString('es-AR')}</span>
+                          <span className="text-2xl font-extrabold text-primary">${precioDesc.toLocaleString('es-AR')}</span>
+                          <span className="text-sm text-muted-foreground line-through">${precioBase.toLocaleString('es-AR')}</span>
                         </>
                       ) : (
-                        <span className="text-xl font-bold text-foreground">{prefijo}${precioBase.toLocaleString('es-AR')}</span>
+                        <span className="text-xl font-bold text-foreground">${precioBase.toLocaleString('es-AR')}</span>
                       )}
                     </div>
                     {status === 'preview' && (
                       <p className="text-xs text-muted-foreground mt-1">El descuento se aplica a partir del 11/05</p>
                     )}
-                    {isGiftCard && status === 'live' && (
-                      <p className="text-xs text-muted-foreground mt-1">Escribinos por WhatsApp para coordinar</p>
-                    )}
                   </div>
-                  {status === 'live' && !isGiftCard && (
+                  {status === 'live' && (
                     <Button size="sm" onClick={() => handleAdd(prod)} className="shrink-0 gap-1.5">
                       <ShoppingCart className="h-4 w-4" /> Agregar
-                    </Button>
-                  )}
-                  {status === 'live' && isGiftCard && (
-                    <Button size="sm" asChild className="shrink-0 gap-1.5 bg-green-600 hover:bg-green-700">
-                      <a href="https://wa.me/5491160352289?text=Hola!%20quiero%20comprar%20una%20Gift%20Card%20con%20el%20descuento%20del%20Hot%20Sale%20🔥" target="_blank" rel="noopener noreferrer">
-                        WhatsApp
-                      </a>
                     </Button>
                   )}
                 </div>
