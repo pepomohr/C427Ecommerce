@@ -7,6 +7,7 @@ import { CartProvider } from "@/lib/cart-context"
 import { Toaster } from "@/components/ui/toaster"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 import { WelcomeToast } from "@/components/welcome-toast"
+import { HotSalePopup } from "@/components/hot-sale-popup"
 import ChatIA from "@/components/chatia"
 import "./globals.css"
 
@@ -140,6 +141,7 @@ export default function RootLayout({
         <CartProvider>
           <Suspense fallback={null}>{children}</Suspense>
           <Suspense fallback={null}><WelcomeToast /></Suspense>
+          <Suspense fallback={null}><HotSalePopup /></Suspense>
           <Toaster />
           <ChatIA />
           <WhatsAppButton />
