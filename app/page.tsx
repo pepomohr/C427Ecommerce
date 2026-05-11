@@ -8,6 +8,7 @@ import { HeroCarousel } from "@/components/hero-carousel"
 import { Newsletter } from "@/components/newsletter"
 import { createClient } from "@/lib/supabase/server"
 import Testimonials from "@/components/testimonials"
+import { HOT_SALE_PRODUCTS, getHotSaleStatus } from "@/lib/hot-sale"
 import {
   Carousel,
   CarouselContent,
@@ -46,6 +47,18 @@ export default async function HomePage() {
     .order("created_at", { ascending: false })
     .limit(4)
 
+  // Productos del Hot Sale (para sección "Ofertas del mes" durante el evento)
+  const hotSaleStatus = getHotSaleStatus()
+  let hotSaleItems: any[] = []
+  if (hotSaleStatus === 'live') {
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .in("id", HOT_SALE_PRODUCTS as unknown as string[])
+      .eq("is_active", true)
+    hotSaleItems = data || []
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
@@ -76,44 +89,55 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* Ofertas del Mes - Carrusel en Celular / Grid en PC */}
-        {latestProducts && latestProducts.length > 0 && (
-          <section className="py-10 md:py-16 bg-muted">
-            <div className="container px-4 md:px-6">
-              <Carousel 
-                opts={{ align: "start", loop: true }}
-                className="w-full"
-              >
-                <div className="flex justify-between items-end mb-6 md:mb-8">
-                  <div className="space-y-1">
-                    <h2 className="text-2xl md:text-3xl font-bold text-primary tracking-tight uppercase">OFERTAS DEL MES</h2>
-                    <div className="w-12 h-1 bg-primary/20 mb-2"></div>
-                    <p className="text-muted-foreground text-sm md:text-base">Aprovechá nuestros precios especiales</p>
+        {/* Ofertas del Mes - durante Hot Sale muestra SOLO esos productos, sino últimos productos */}
+        {(() => {
+          const itemsToShow = hotSaleStatus === 'live' ? hotSaleItems : (latestProducts || [])
+          if (!itemsToShow || itemsToShow.length === 0) return null
+          const isHotSaleActive = hotSaleStatus === 'live'
+          return (
+            <section className="py-10 md:py-16 bg-muted">
+              <div className="container px-4 md:px-6">
+                <Carousel
+                  opts={{ align: "start", loop: true }}
+                  className="w-full"
+                >
+                  <div className="flex justify-between items-end mb-6 md:mb-8">
+                    <div className="space-y-1">
+                      <h2 className="text-2xl md:text-3xl font-bold text-primary tracking-tight uppercase flex items-center gap-2">
+                        {isHotSaleActive ? '🔥 HOT SALE' : 'OFERTAS DEL MES'}
+                      </h2>
+                      <div className="w-12 h-1 bg-primary/20 mb-2"></div>
+                      <p className="text-muted-foreground text-sm md:text-base">
+                        {isHotSaleActive
+                          ? '15% OFF en estos productos · solo hasta el 13 de Mayo'
+                          : 'Aprovechá nuestros precios especiales'}
+                      </p>
+                    </div>
+                    {/* Desktop arrows beside the title */}
+                    <div className="hidden md:flex gap-4">
+                      <CarouselPrevious className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
+                      <CarouselNext className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
+                    </div>
                   </div>
-                  {/* Desktop arrows beside the title */}
-                  <div className="hidden md:flex gap-4">
+
+                  <CarouselContent className={`md:grid md:gap-8 md:ml-0 ${itemsToShow.length >= 4 ? 'md:grid-cols-4' : `md:grid-cols-${itemsToShow.length}`}`}>
+                    {itemsToShow.map((product) => (
+                      <CarouselItem key={product.id} className="basis-full md:basis-auto md:p-0">
+                        <ProductCard product={product} />
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+
+                  {/* Mobile indicators/arrows centered below */}
+                  <div className="flex md:hidden justify-center gap-4 mt-8">
                     <CarouselPrevious className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
                     <CarouselNext className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
                   </div>
-                </div>
-                
-                <CarouselContent className="md:grid md:grid-cols-4 md:gap-8 md:ml-0">
-                  {latestProducts.map((product) => (
-                    <CarouselItem key={product.id} className="basis-full md:basis-auto md:p-0">
-                      <ProductCard product={product} />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                
-                {/* Mobile indicators/arrows centered below */}
-                <div className="flex md:hidden justify-center gap-4 mt-8">
-                  <CarouselPrevious className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
-                  <CarouselNext className="static translate-y-0 border-primary/20 text-primary hover:bg-primary hover:text-white" />
-                </div>
-              </Carousel>
-            </div>
-          </section>
-        )}
+                </Carousel>
+              </div>
+            </section>
+          )
+        })()}
 
         {/* Más Vendidos - Fondo Blanco */}
         {featuredProducts && featuredProducts.length > 0 && (

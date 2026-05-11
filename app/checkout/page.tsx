@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { useCart } from "@/lib/cart-context"
+import { getEffectivePrice, getPriceInfo } from "@/lib/hot-sale"
 import { createClient } from "@/lib/supabase/client"
 import { appendOrderToSheets } from "@/lib/google-sheets"
 import { CardPaymentForm } from "@/components/card-payment-form"
@@ -110,13 +111,13 @@ export default function CheckoutPage() {
           order_id: order.id,
           product_id: item.product.id,
           quantity: item.quantity,
-          price: item.product.price,
+          price: getEffectivePrice(item.product), // precio con hot sale aplicado
         }))
       )
 
       const pedidoId = order.id.slice(0, 8).toUpperCase()
       const productLines = items
-        .map((i) => `• ${i.product.name} x${i.quantity} — $${(i.product.price * i.quantity).toLocaleString("es-AR")}`)
+        .map((i) => `• ${i.product.name} x${i.quantity} — $${(getEffectivePrice(i.product) * i.quantity).toLocaleString("es-AR")}`)
         .join("\n")
 
       const entregaLinea = deliveryMethod === "retiro"
@@ -510,9 +511,20 @@ export default function CheckoutPage() {
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm line-clamp-1">{item.product.name}</p>
                           <p className="text-xs text-muted-foreground">Cant: {item.quantity}</p>
-                          <p className="text-sm font-semibold mt-1">
-                            ${(item.product.price * item.quantity).toLocaleString("es-AR")}
-                          </p>
+                          {(() => {
+                            const pi = getPriceInfo(item.product)
+                            const lineTotal = pi.final * item.quantity
+                            return pi.active ? (
+                              <div className="flex items-baseline gap-2 mt-1">
+                                <span className="text-sm font-semibold">${lineTotal.toLocaleString("es-AR")}</span>
+                                <span className="text-xs text-muted-foreground line-through">
+                                  ${(pi.original * item.quantity).toLocaleString("es-AR")}
+                                </span>
+                              </div>
+                            ) : (
+                              <p className="text-sm font-semibold mt-1">${lineTotal.toLocaleString("es-AR")}</p>
+                            )
+                          })()}
                         </div>
                       </div>
                     ))}

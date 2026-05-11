@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { Product, CartItem } from "@/lib/types"
+import { getEffectivePrice } from "@/lib/hot-sale"
 
 interface CartContextType {
   items: CartItem[]
@@ -88,7 +89,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
-  const totalPrice = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)
+  // Usar precio efectivo (con hot sale aplicado si corresponde)
+  const totalPrice = items.reduce((sum, item) => sum + getEffectivePrice(item.product) * item.quantity, 0)
 
   return (
     <CartContext.Provider

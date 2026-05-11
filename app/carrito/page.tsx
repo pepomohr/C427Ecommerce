@@ -10,6 +10,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useCart } from "@/lib/cart-context"
 import { AIAdvisor } from "@/components/ai-advisor"
+import { getPriceInfo, getHotSaleStatus } from "@/lib/hot-sale"
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice, clearCart } = useCart()
@@ -61,7 +62,10 @@ export default function CartPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
-              {items.map((item) => (
+              {items.map((item) => {
+                const priceInfo = getPriceInfo(item.product)
+                const lineTotal = priceInfo.final * item.quantity
+                return (
                 <Card key={item.product.id}>
                   <CardContent className="p-4">
                     <div className="flex gap-4">
@@ -85,9 +89,23 @@ export default function CartPage() {
                           </h3>
                         </Link>
                         <p className="text-sm text-muted-foreground mb-2">{item.product.category}</p>
-                        <p className="font-bold" style={{ color: "oklch(0.35 0.08 160)" }}>
-                          ${(item.product.price ?? 0).toLocaleString("es-AR")}
-                        </p>
+                        {priceInfo.active ? (
+                          <div className="flex items-baseline gap-2 flex-wrap">
+                            <span className="font-bold text-lg" style={{ color: "oklch(0.35 0.08 160)" }}>
+                              ${priceInfo.final.toLocaleString("es-AR")}
+                            </span>
+                            <span className="text-sm text-muted-foreground line-through">
+                              ${priceInfo.original.toLocaleString("es-AR")}
+                            </span>
+                            <span className="text-[10px] bg-primary text-white font-bold px-1.5 py-0.5 rounded">
+                              {priceInfo.discountPct}% OFF
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="font-bold" style={{ color: "oklch(0.35 0.08 160)" }}>
+                            ${priceInfo.original.toLocaleString("es-AR")}
+                          </p>
+                        )}
                       </div>
 
                       {/* Quantity Controls */}
@@ -130,13 +148,14 @@ export default function CartPage() {
                         </div>
 
                         <p className="text-sm font-semibold">
-                          ${((item.product.price ?? 0) * item.quantity).toLocaleString("es-AR")}
+                          ${lineTotal.toLocaleString("es-AR")}
                         </p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                )
+              })}
             </div>
 
             {/* Order Summary */}
@@ -145,22 +164,42 @@ export default function CartPage() {
                 <CardContent className="p-6">
                   <h2 className="text-2xl font-bold mb-6">Resumen del Pedido</h2>
 
-                  <div className="space-y-3 mb-6">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Subtotal</span>
-                      <span className="font-medium">${totalPrice.toLocaleString("es-AR")}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Envío</span>
-                      <span className="font-medium">A calcular</span>
-                    </div>
-                    <div className="border-t pt-3 flex justify-between">
-                      <span className="font-semibold">Total</span>
-                      <span className="font-bold text-xl" style={{ color: "oklch(0.35 0.08 160)" }}>
-                        ${totalPrice.toLocaleString("es-AR")}
-                      </span>
-                    </div>
-                  </div>
+                  {(() => {
+                    const originalTotal = items.reduce((sum, item) => sum + (item.product.price ?? 0) * item.quantity, 0)
+                    const savings = originalTotal - totalPrice
+                    const hasDiscount = savings > 0
+                    return (
+                      <div className="space-y-3 mb-6">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Subtotal</span>
+                          <span className="font-medium">
+                            {hasDiscount && (
+                              <span className="line-through text-muted-foreground mr-2 text-xs">
+                                ${originalTotal.toLocaleString("es-AR")}
+                              </span>
+                            )}
+                            ${totalPrice.toLocaleString("es-AR")}
+                          </span>
+                        </div>
+                        {hasDiscount && (
+                          <div className="flex justify-between text-sm bg-primary/10 -mx-2 px-2 py-1.5 rounded">
+                            <span className="text-primary font-bold flex items-center gap-1">🔥 Hot Sale</span>
+                            <span className="font-bold text-primary">−${savings.toLocaleString("es-AR")}</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Envío</span>
+                          <span className="font-medium">A calcular</span>
+                        </div>
+                        <div className="border-t pt-3 flex justify-between">
+                          <span className="font-semibold">Total</span>
+                          <span className="font-bold text-xl" style={{ color: "oklch(0.35 0.08 160)" }}>
+                            ${totalPrice.toLocaleString("es-AR")}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })()}
 
                   <Button asChild className="w-full" size="lg">
                     <Link href="/checkout">Proceder al Pago</Link>

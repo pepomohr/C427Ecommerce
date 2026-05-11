@@ -6,6 +6,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { AddToCartButton } from "@/components/add-to-cart-button"
 import type { Product } from "@/lib/types"
+import { getPriceInfo } from "@/lib/hot-sale"
 
 interface ProductCardProps {
   product: Product
@@ -16,6 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = product.stock === 0
   const isGiftCard = displayName.toLowerCase().includes("gift card")
   const isVideo = product.image_url?.toLowerCase().endsWith('.mp4') || product.image_url?.toLowerCase().endsWith('.webm')
+  const priceInfo = getPriceInfo({ id: product.id, price: product.price ?? 0 })
   
   return (
     <Card className="flex flex-col h-full overflow-hidden group hover:shadow-xl transition-all duration-300 rounded-2xl border-border/50 hover:-translate-y-1">
@@ -50,6 +52,11 @@ export function ProductCard({ product }: ProductCardProps) {
               PROMO
             </Badge>
           )}
+          {priceInfo.active && (
+            <Badge className="absolute top-3 left-0 shadow-md rounded-r-md rounded-l-none px-4 py-1.5 font-bold tracking-widest text-[11px] bg-primary text-white uppercase flex items-center gap-1">
+              🔥 {priceInfo.discountPct}% OFF
+            </Badge>
+          )}
         </div>
       </Link>
 
@@ -71,6 +78,15 @@ export function ProductCard({ product }: ProductCardProps) {
               <Badge className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full border border-primary/20">
                 Elegí tu monto
               </Badge>
+            </>
+          ) : priceInfo.active ? (
+            <>
+              <p className="text-lg sm:text-2xl font-bold text-primary group-hover:text-primary/80 transition-colors tracking-tighter">
+                ${priceInfo.final.toLocaleString("es-AR")}
+              </p>
+              <p className="text-sm sm:text-base text-muted-foreground line-through font-normal">
+                ${priceInfo.original.toLocaleString("es-AR")}
+              </p>
             </>
           ) : (
             <>

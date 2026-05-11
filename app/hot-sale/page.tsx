@@ -10,25 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Flame, ShoppingCart } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
 import { useToast } from "@/components/ui/use-toast"
-
-const HOT_SALE_PRODUCTS = [
-  "2f991d1f-e029-43ba-99d7-7b13c9978268", // Vitamina C unidosis
-  "145f341a-b4e9-42a2-a632-f192aeb70e50", // Glisodin
-  "42b9eee4-a910-465e-80f1-2565df0b3e2d", // Espuma de Limpieza
-  "ca982517-4dca-4cc6-8169-51d931c71ea4", // Serum Hyaluronic
-  "ea7f8feb-b226-432f-9693-871d0ff838b9", // Serum Redensity
-]
-
-const DESCUENTO = 0.15
-
-function getHotSaleStatus(): 'preview' | 'live' | 'ended' {
-  const now = new Date()
-  const start = new Date(2026, 4, 11)
-  const end   = new Date(2026, 4, 14)
-  if (now >= end) return 'ended'
-  if (now >= start) return 'live'
-  return 'preview'
-}
+import { HOT_SALE_PRODUCTS, HOT_SALE_DISCOUNT as DESCUENTO, getHotSaleStatus } from "@/lib/hot-sale"
 
 export default function HotSalePage() {
   const { addItem } = useCart()
