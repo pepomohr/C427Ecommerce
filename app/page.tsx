@@ -122,7 +122,7 @@ export default async function HomePage() {
 
                   <CarouselContent className="-ml-4">
                     {itemsToShow.map((product) => (
-                      <CarouselItem key={product.id} className="pl-4 basis-3/4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
+                      <CarouselItem key={product.id} className="pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
                         <ProductCard product={product} />
                       </CarouselItem>
                     ))}
