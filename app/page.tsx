@@ -120,9 +120,9 @@ export default async function HomePage() {
                     </div>
                   </div>
 
-                  <CarouselContent className={`md:grid md:gap-8 md:ml-0 ${itemsToShow.length >= 4 ? 'md:grid-cols-4' : `md:grid-cols-${itemsToShow.length}`}`}>
+                  <CarouselContent className="-ml-4">
                     {itemsToShow.map((product) => (
-                      <CarouselItem key={product.id} className="basis-full md:basis-auto md:p-0">
+                      <CarouselItem key={product.id} className="pl-4 basis-3/4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4">
                         <ProductCard product={product} />
                       </CarouselItem>
                     ))}
