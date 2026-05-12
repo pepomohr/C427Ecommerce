@@ -83,27 +83,31 @@ async function registrarVenta(supabase: ReturnType<typeof getSupabase>, order: a
     soldBy: null,
   })) ?? []
 
-  const customerName = order.shipping_address?.fullName ?? "Cliente web"
+  // Source viene de la orden: 'web' (ecommerce) o 'app_c427' (PWA del paciente)
+  const source = order.source || "web"
+  const customerName = order.patient_name || order.shipping_address?.fullName || (source === "app_c427" ? "Cliente app" : "Cliente web")
   const pedidoId = String(order.id).slice(0, 8).toUpperCase()
+  const origenLabel = source === "app_c427" ? "App C427" : "Web"
 
   const { error } = await supabase.from("sales").insert({
     items,
     total: Number(order.total),
     payment_method: metodoPago,
-    source: "web",
+    source,
     type: "direct",
     patient_name: customerName,
-    processed_by: "WEB C427",
-    observations: `Pedido web #${pedidoId} | Tel: ${order.shipping_address?.phone ?? ""} | ${order.shipping_address?.address ?? ""}, ${order.shipping_address?.city ?? ""}`,
+    patient_id: order.patient_id || null,
+    processed_by: source === "app_c427" ? "APP C427" : "WEB C427",
+    observations: `Pedido ${origenLabel} #${pedidoId} | Tel: ${order.shipping_address?.phone ?? ""} | ${order.shipping_address?.address ?? ""}, ${order.shipping_address?.city ?? ""}`,
     date: new Date().toISOString(),
   })
 
   if (error) {
-    console.error("❌ Error registrando venta en Sistema C427:", JSON.stringify(error))
+    console.error(`❌ Error registrando venta (${source}):`, JSON.stringify(error))
     throw error
   }
 
-  console.log("✅ Venta registrada en Sistema C427:", pedidoId)
+  console.log(`✅ Venta registrada (${source}):`, pedidoId)
 }
 
 // MP hace un GET para verificar que el endpoint existe antes de enviar notificaciones
@@ -139,7 +143,7 @@ export async function POST(req: NextRequest) {
         updated_at: new Date().toISOString(),
       })
       .eq("id", orderId)
-      .select("*, order_items(quantity, price, product_id, product:products(name, id)), shipping_address")
+      .select("*, source, patient_id, patient_name, order_items(quantity, price, product_id, product:products(name, id)), shipping_address")
       .single()
 
     if (error || !order) {
