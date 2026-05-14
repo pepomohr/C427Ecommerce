@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 import { WelcomeToast } from "@/components/welcome-toast"
 import { HotSalePopup } from "@/components/hot-sale-popup"
+import { UndoToastProvider } from "@/components/undo-toast"
 import ChatIA from "@/components/chatia"
 import "./globals.css"
 
@@ -139,13 +140,15 @@ export default function RootLayout({
       {/* ELIMINÉ TODO EL TAG <head> DE AQUÍ Y SUS CONTENIDOS */}
       <body className={`font-sans ${inter.variable}`}>
         <CartProvider>
+          <UndoToastProvider>
           <Suspense fallback={null}>{children}</Suspense>
           <Suspense fallback={null}><WelcomeToast /></Suspense>
           <Suspense fallback={null}><HotSalePopup /></Suspense>
           <Toaster />
           <ChatIA />
           <WhatsAppButton />
-        </CartProvider>
+                  </UndoToastProvider>
+        </CartProvider>
         <Analytics />
       </body>
       {/* MOVÍ EL SCRIPT DEL SCHEMA AQUÍ, ANTES DEL FINAL DEL HTML */}
