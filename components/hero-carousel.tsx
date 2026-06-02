@@ -20,8 +20,8 @@ export function HeroCarousel() {
   const [hotSaleStatus, setHotSaleStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
   React.useEffect(() => {
     const now = new Date()
-    const start = new Date(2026, 4, 11)
-    const end   = new Date(2026, 4, 14)
+    const start = new Date(2026, 5, 8)   // 8 Junio (lunes)
+    const end   = new Date(2026, 5, 15)  // 15 Junio (exclusivo, así domingo 14 entra completo)
     if (now >= end) setHotSaleStatus('ended')
     else if (now >= start) setHotSaleStatus('live')
   }, [])
@@ -37,20 +37,20 @@ export function HeroCarousel() {
       opts={{ loop: true }}
     >
       <CarouselContent>
-        {/* SLIDE 1: HOT SALE (reemplaza el 50% OFF) */}
+        {/* SLIDE 1: PROMO 30% OFF (8 al 14 de junio) */}
         {hotSaleStatus !== 'ended' && (
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0">
             <Image
-              src="/ofertas_celu.png"
-              alt="Hot Sale C427"
+              src="/promo_celu.png"
+              alt="30% OFF en toda la web · C427"
               fill
               className="object-cover object-center md:hidden"
               priority
             />
             <Image
-              src="/ofertas.png"
-              alt="Hot Sale C427"
+              src="/promo.png"
+              alt="30% OFF en toda la web · C427"
               fill
               className="object-cover object-center hidden md:block"
               priority
@@ -60,28 +60,28 @@ export function HeroCarousel() {
               <div className="max-w-xl text-left text-white">
                 {hotSaleStatus === 'live' ? (
                   <>
-                    <p className="text-xs md:text-base font-bold tracking-widest uppercase text-primary mb-1 drop-shadow">🔥 Hot Sale</p>
+                    <p className="text-xs md:text-base font-bold tracking-widest uppercase mb-1 drop-shadow" style={{ color: '#e6c97d' }}>✨ Promoción activa</p>
                     <h1 className="text-3xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
-                      ¡HOY ES EL DÍA!
+                      30% OFF<br/>EN TODA LA WEB
                     </h1>
-                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[250px] md:max-w-md">
-                      Descuentos exclusivos del 11 al 13 de Mayo.
+                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[280px] md:max-w-md">
+                      Solo hasta el domingo 14 de junio. No te lo pierdas.
                     </p>
-                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl bg-primary text-white border-none tracking-widest font-bold uppercase hover:bg-primary/90">
-                      <Link href="/hot-sale">VER OFERTAS &gt;</Link>
+                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl text-white border-none tracking-widest font-bold uppercase hover:opacity-90" style={{ background: 'linear-gradient(90deg, #b8860b, #c8a96a)' }}>
+                      <Link href="/productos">VER PRODUCTOS &gt;</Link>
                     </Button>
                   </>
                 ) : (
                   <>
-                    <p className="text-xs md:text-base font-bold tracking-widest uppercase text-primary mb-1 drop-shadow">🔥 Se viene</p>
+                    <p className="text-xs md:text-base font-bold tracking-widest uppercase mb-1 drop-shadow" style={{ color: '#e6c97d' }}>✨ Se viene</p>
                     <h1 className="text-3xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
-                      HOT SALE
+                      30% OFF<br/>EN TODA LA WEB
                     </h1>
-                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[250px] md:max-w-md">
-                      11, 12 y 13 de Mayo — Descuentos exclusivos por tiempo limitado.
+                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[280px] md:max-w-md">
+                      Del lunes 8 al domingo 14 de junio. Marcá la fecha.
                     </p>
-                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl bg-primary text-white border-none tracking-widest font-bold uppercase hover:bg-primary/90">
-                      <Link href="/hot-sale">VER PREVIEW &gt;</Link>
+                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl text-white border-none tracking-widest font-bold uppercase hover:opacity-90" style={{ background: 'linear-gradient(90deg, #b8860b, #c8a96a)' }}>
+                      <Link href="/productos">VER PRODUCTOS &gt;</Link>
                     </Button>
                   </>
                 )}
