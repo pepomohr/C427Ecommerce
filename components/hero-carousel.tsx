@@ -42,14 +42,14 @@ export function HeroCarousel() {
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0">
             <Image
-              src="/promo_celu.png"
+              src="/ofertas_celu.png"
               alt="30% OFF en toda la web · C427"
               fill
               className="object-cover object-center md:hidden"
               priority
             />
             <Image
-              src="/promo.png"
+              src="/ofertas.png"
               alt="30% OFF en toda la web · C427"
               fill
               className="object-cover object-center hidden md:block"
