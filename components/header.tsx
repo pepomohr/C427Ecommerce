@@ -90,26 +90,32 @@ function MobileCategory({ title, links }: { title: string; links: { name: string
   )
 }
 
-// ---------- HOT SALE BANNER ----------
+// ---------- PROMO BANNER (tirita dorada arriba del hero) ----------
+// Campaña: 30% OFF en toda la web del lunes 8 al domingo 14 de junio 2026.
 function HotSaleBanner() {
   const [status, setStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
   React.useEffect(() => {
     const now = new Date()
-    const start = new Date(2026, 4, 11)  // 11 Mayo
-    const end   = new Date(2026, 4, 14)  // 14 Mayo (exclusivo)
+    const start = new Date(2026, 5, 8)   // 8 Junio (lunes)
+    const end   = new Date(2026, 5, 15)  // 15 Junio 00:00 (exclusivo, así el domingo 14 entra completo)
     if (now >= end)   setStatus('ended')
     else if (now >= start) setStatus('live')
   }, [])
   if (status === 'ended') return null
   return (
-    <div className="bg-primary text-primary-foreground py-2 px-4 text-center text-[10px] md:text-sm font-medium tracking-wide">
+    <div
+      className="text-white py-2 px-4 text-center text-[10px] md:text-sm font-bold tracking-wider uppercase shadow-sm"
+      style={{
+        background: 'linear-gradient(90deg, #b8860b 0%, #c8a96a 25%, #e6c97d 50%, #c8a96a 75%, #b8860b 100%)',
+      }}
+    >
       {status === 'live'
-        ? "🔥 HOT SALE — ¡Aprovechá hoy y mañana! Solo hasta el 13 de Mayo"
-        : "🔥 HOT SALE se viene — 11, 12 y 13 de Mayo"}
+        ? '✨ 30% OFF EN TODA LA WEB · Solo hasta el domingo 14 de junio'
+        : '✨ Se viene 30% OFF EN TODA LA WEB · Del lunes 8 al domingo 14 de junio'}
     </div>
   )
 }
-// ---------- END HOT SALE BANNER ----------
+// ---------- END PROMO BANNER ----------
 
 export function Header({ isAuthenticated, isAdmin }: HeaderProps) {
   const router = useRouter()
