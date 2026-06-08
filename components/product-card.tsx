@@ -17,7 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const isOutOfStock = product.stock === 0
   const isGiftCard = displayName.toLowerCase().includes("gift card")
   const isVideo = product.image_url?.toLowerCase().endsWith('.mp4') || product.image_url?.toLowerCase().endsWith('.webm')
-  const priceInfo = getPriceInfo({ id: product.id, price: product.price ?? 0 })
+  const priceInfo = getPriceInfo({ id: product.id, name: displayName, price: product.price ?? 0 })
   
   return (
     <Card className="flex flex-col h-full overflow-hidden group hover:shadow-xl transition-all duration-300 rounded-2xl border-border/50 hover:-translate-y-1">

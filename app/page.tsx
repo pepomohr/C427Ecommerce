@@ -8,7 +8,7 @@ import { HeroCarousel } from "@/components/hero-carousel"
 import { Newsletter } from "@/components/newsletter"
 import { createClient } from "@/lib/supabase/server"
 import Testimonials from "@/components/testimonials"
-import { HOT_SALE_PRODUCTS, getHotSaleStatus } from "@/lib/hot-sale"
+import { getHotSaleStatus } from "@/lib/hot-sale"
 import {
   Carousel,
   CarouselContent,
@@ -47,15 +47,17 @@ export default async function HomePage() {
     .order("created_at", { ascending: false })
     .limit(4)
 
-  // Productos del Hot Sale (para sección "Ofertas del mes" durante el evento)
+  // Durante la promo, mostramos productos destacados (todos están en oferta, no hay lista especial)
   const hotSaleStatus = getHotSaleStatus()
   let hotSaleItems: any[] = []
   if (hotSaleStatus === 'live') {
     const { data } = await supabase
       .from("products")
       .select("*")
-      .in("id", HOT_SALE_PRODUCTS as unknown as string[])
       .eq("is_active", true)
+      .not("name", "ilike", "%gift card%")  // gift cards excluidas de la promo
+      .order("created_at", { ascending: false })
+      .limit(8)
     hotSaleItems = data || []
   }
 
