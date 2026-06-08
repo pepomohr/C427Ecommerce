@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { X, Flame, ArrowRight } from "lucide-react"
+import { X, Sparkles, ArrowRight } from "lucide-react"
 import { getHotSaleStatus } from "@/lib/hot-sale"
 
-const SESSION_KEY = "hot_sale_popup_seen"
+const SESSION_KEY = "promo_junio_popup_seen"
 
 export function HotSalePopup() {
   const [open, setOpen] = useState(false)
@@ -31,7 +31,7 @@ export function HotSalePopup() {
       onClick={handleClose}
     >
       <div
-        className="relative bg-white rounded-3xl shadow-2xl max-w-[380px] w-full overflow-hidden animate-in zoom-in-95 duration-300"
+        className="relative bg-white rounded-3xl shadow-2xl max-w-[400px] w-full overflow-hidden animate-in zoom-in-95 duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Botón cerrar */}
@@ -43,41 +43,46 @@ export function HotSalePopup() {
           <X className="h-4 w-4" />
         </button>
 
-        {/* Header dorado con patrón */}
-        <div className="relative px-8 pt-10 pb-8 bg-gradient-to-br from-[#a07853] via-[#936c43] to-[#7a5832] text-white text-center overflow-hidden">
+        {/* Header dorado con gradiente brilloso tipo oro pulido */}
+        <div
+          className="relative px-8 pt-10 pb-8 text-white text-center overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #b8860b 0%, #c8a96a 35%, #e6c97d 50%, #c8a96a 65%, #8b6914 100%)',
+          }}
+        >
           {/* Patrón decorativo de fondo */}
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <div className="absolute -top-12 -left-12 w-40 h-40 rounded-full bg-white blur-3xl" />
-            <div className="absolute -bottom-12 -right-12 w-40 h-40 rounded-full bg-white blur-3xl" />
+          <div className="absolute inset-0 opacity-15 pointer-events-none">
+            <div className="absolute -top-12 -left-12 w-44 h-44 rounded-full bg-white blur-3xl" />
+            <div className="absolute -bottom-12 -right-12 w-44 h-44 rounded-full bg-white blur-3xl" />
           </div>
 
           {/* Contenido */}
           <div className="relative">
-            {/* Badge flama */}
-            <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-3 py-1.5 rounded-full mb-5 border border-white/20">
-              <Flame className="h-3.5 w-3.5 text-orange-300 fill-orange-300" />
-              <span className="text-[10px] font-bold tracking-[0.25em] uppercase">Hot Sale</span>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full mb-5 border border-white/30">
+              <Sparkles className="h-3.5 w-3.5 text-white" />
+              <span className="text-[10px] font-bold tracking-[0.25em] uppercase">Promoción</span>
             </div>
 
-            <h2 className="text-5xl font-black tracking-tight leading-none mb-3 drop-shadow-sm">
-              ¡ES HOY!
+            <h2 className="text-3xl font-black tracking-tight leading-none mb-2 drop-shadow-sm uppercase">
+              30% OFF
             </h2>
+            <p className="text-sm font-bold tracking-wide opacity-95 mb-4">
+              EN TODA LA WEB
+            </p>
 
-            <div className="inline-block bg-white text-[#7a5832] px-4 py-1.5 rounded-full font-black text-sm tracking-wide shadow-sm mb-3">
-              15% OFF
+            <div className="inline-block bg-white text-[#8b6914] px-4 py-1.5 rounded-full font-black text-xs tracking-widest shadow-sm mb-3 uppercase">
+              Hasta el domingo 14
             </div>
 
-            <p className="text-sm font-medium opacity-95 leading-snug">
-              En productos seleccionados
-            </p>
-            <p className="text-[11px] uppercase tracking-widest mt-2 opacity-75 font-bold">
-              Solo hasta el 13 de Mayo
+            <p className="text-[11px] uppercase tracking-widest mt-2 opacity-80 font-bold">
+              Aprovechá esta semana
             </p>
           </div>
         </div>
 
         {/* Cuerpo blanco */}
-        <div className="px-8 py-7 flex flex-col items-center gap-5 bg-white">
+        <div className="px-8 py-7 flex flex-col items-center gap-4 bg-white">
           <Image
             src="/c427logodorado.png"
             alt="C427 Medicina Estética"
@@ -86,12 +91,18 @@ export function HotSalePopup() {
             className="object-contain opacity-90"
           />
 
+          <p className="text-xs text-center text-muted-foreground leading-relaxed">
+            Tus productos favoritos con <b className="text-foreground">30% de descuento</b>.<br/>
+            <span className="text-[11px] opacity-75">Aplica a toda la web · Gift cards no incluidas</span>
+          </p>
+
           <Link
-            href="/hot-sale"
+            href="/productos"
             onClick={handleClose}
-            className="w-full inline-flex items-center justify-center gap-2 bg-foreground text-white font-bold text-sm tracking-[0.15em] uppercase py-3.5 rounded-full hover:bg-foreground/90 transition-all hover:gap-3 shadow-sm"
+            className="w-full inline-flex items-center justify-center gap-2 text-white font-bold text-sm tracking-[0.15em] uppercase py-3.5 rounded-full hover:opacity-90 transition-all hover:gap-3 shadow-md"
+            style={{ background: 'linear-gradient(90deg, #b8860b, #c8a96a)' }}
           >
-            Ver ofertas
+            Ver productos
             <ArrowRight className="h-4 w-4" />
           </Link>
 
