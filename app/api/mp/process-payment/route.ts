@@ -2,6 +2,7 @@ import { MercadoPagoConfig, Payment } from "mercadopago"
 import { createClient } from "@supabase/supabase-js"
 import { NextRequest, NextResponse } from "next/server"
 import { sendOrderConfirmation, sendOrderNotificationToNico } from "@/lib/emails"
+import { getEffectivePrice } from "@/lib/hot-sale"
 
 const mp = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN! })
 
@@ -43,15 +44,18 @@ async function registrarVenta(
     ? "tarjeta"
     : "tarjeta"
 
-  const saleItems = items.map((i: any) => ({
-    itemId: i.product?.id ?? "web",
-    itemName: i.product?.name ?? "Producto ecommerce",
-    quantity: i.quantity,
-    price: Number(i.product?.price ?? 0),
-    priceCashReference: Number(i.product?.price ?? 0),
-    type: "product",
-    soldBy: null,
-  }))
+  const saleItems = items.map((i: any) => {
+    const effective = getEffectivePrice(i.product)
+    return {
+      itemId: i.product?.id ?? "web",
+      itemName: i.product?.name ?? "Producto ecommerce",
+      quantity: i.quantity,
+      price: effective,
+      priceCashReference: effective,
+      type: "product",
+      soldBy: null,
+    }
+  })
 
   const pedidoId = String(order.id).slice(0, 8).toUpperCase()
   const { error } = await supabase.from("sales").insert({
@@ -74,7 +78,8 @@ export async function POST(req: NextRequest) {
     const {
       token, installments, paymentMethodId, issuerId,
       identificationType, identificationNumber,
-      items, shipping, userId, email
+      items, shipping, userId, email,
+      idempotencyKey,
     } = await req.json()
 
     if (!token || !userId || !items?.length) {
@@ -83,15 +88,40 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabase()
 
+    // Idempotencia: si ya hay una orden con esta clave, no cobrar de nuevo
+    if (idempotencyKey) {
+      const { data: existing } = await supabase
+        .from("orders")
+        .select("id, status")
+        .eq("idempotency_key", idempotencyKey)
+        .maybeSingle()
+      if (existing) {
+        if (existing.status === "paid") {
+          return NextResponse.json({ status: "approved", order_id: existing.id })
+        }
+        if (existing.status === "pending") {
+          return NextResponse.json({ status: "pending", order_id: existing.id })
+        }
+        // si está cancelled, dejamos que el usuario reintente con otra clave (frontend regenera)
+      }
+    }
+
+    // Total usando precio efectivo (con descuento de hot sale aplicado)
     const total = items.reduce(
-      (sum: number, item: any) => sum + item.product.price * item.quantity,
+      (sum: number, item: any) => sum + getEffectivePrice(item.product) * item.quantity,
       0
     )
 
     // Crear pedido
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .insert({ user_id: userId, total, status: "pending", shipping_address: shipping })
+      .insert({
+        user_id: userId,
+        total,
+        status: "pending",
+        shipping_address: shipping,
+        idempotency_key: idempotencyKey ?? null,
+      })
       .select()
       .single()
 
@@ -104,7 +134,7 @@ export async function POST(req: NextRequest) {
         order_id: order.id,
         product_id: item.product.id,
         quantity: item.quantity,
-        price: item.product.price,
+        price: getEffectivePrice(item.product),
       }))
     )
 
@@ -144,7 +174,7 @@ export async function POST(req: NextRequest) {
         items: items.map((i: any) => ({
           name: i.product?.name ?? "Producto",
           quantity: i.quantity,
-          price: Number(i.product?.price ?? 0),
+          price: getEffectivePrice(i.product),
         })),
         total: Number(total),
         shipping: {

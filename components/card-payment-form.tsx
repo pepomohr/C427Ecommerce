@@ -25,6 +25,13 @@ export function CardPaymentForm({ items, shipping, userId, email, total, onSucce
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const formRef = useRef<any>(null)
+  const submittingRef = useRef(false)
+  // Clave de idempotencia: única por sesión del form. Sobrevive a re-render del form.
+  const idempotencyKeyRef = useRef<string>(
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  )
 
   useEffect(() => {
     const publicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY
@@ -65,6 +72,9 @@ export function CardPaymentForm({ items, shipping, userId, email, total, onSucce
         onFormMounted: (err: any) => { if (!err) setIsReady(true) },
         onSubmit: async (event: any) => {
           event.preventDefault()
+          // Bloqueo sincrónico contra doble submit (no esperamos al setState)
+          if (submittingRef.current) return
+          submittingRef.current = true
           setIsProcessing(true)
           setError(null)
           const { paymentMethodId, issuerId, cardholderEmail, token, installments, identificationType, identificationNumber } = cardForm.getCardFormData()
@@ -77,6 +87,7 @@ export function CardPaymentForm({ items, shipping, userId, email, total, onSucce
                 identificationType, identificationNumber,
                 items, shipping, userId,
                 email: cardholderEmail || email,
+                idempotencyKey: idempotencyKeyRef.current,
               }),
             })
             const data = await res.json()
@@ -87,10 +98,16 @@ export function CardPaymentForm({ items, shipping, userId, email, total, onSucce
             } else {
               setError(data.error ?? "El pago fue rechazado. Verificá los datos.")
               setIsProcessing(false)
+              // Regenerar clave para próximo intento — no queremos que el backend devuelva el rechazo cacheado
+              idempotencyKeyRef.current = typeof crypto !== "undefined" && "randomUUID" in crypto
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+              submittingRef.current = false
             }
           } catch {
             setError("Error de conexión. Intentá de nuevo.")
             setIsProcessing(false)
+            submittingRef.current = false
           }
         },
         onFetching: (resource: any) => {
