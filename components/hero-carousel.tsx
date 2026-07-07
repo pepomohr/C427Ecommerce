@@ -20,8 +20,8 @@ export function HeroCarousel() {
   const [hotSaleStatus, setHotSaleStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
   React.useEffect(() => {
     const now = new Date()
-    const start = new Date(2026, 5, 8)   // 8 Junio (lunes)
-    const end   = new Date(2026, 5, 15)  // 15 Junio (exclusivo, así domingo 14 entra completo)
+    const start = new Date(2026, 5, 30, 0, 0, 0)  // 30 Junio 2026 00:00 (martes)
+    const end   = new Date(2026, 6, 6, 0, 0, 0)   // 6 Julio 2026 00:00 (todo el domingo 5 entra)
     if (now >= end) setHotSaleStatus('ended')
     else if (now >= start) setHotSaleStatus('live')
   }, [])
@@ -37,50 +37,50 @@ export function HeroCarousel() {
       opts={{ loop: true }}
     >
       <CarouselContent>
-        {/* SLIDE 1: PROMO 30% OFF (8 al 14 de junio) */}
+        {/* SLIDE 1: PROMO RELÁMPAGO 50% OFF (30 junio al 5 julio) */}
         {hotSaleStatus !== 'ended' && (
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0">
             <Image
               src="/ofertas_celu.png"
-              alt="30% OFF en toda la web · C427"
+              alt="50% OFF en toda la web · C427"
               fill
               className="object-cover object-center md:hidden"
               priority
             />
             <Image
               src="/ofertas.png"
-              alt="30% OFF en toda la web · C427"
+              alt="50% OFF en toda la web · C427"
               fill
               className="object-cover object-center hidden md:block"
               priority
             />
-            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0 bg-black/65" />
             <div className="container relative z-10 pl-6 pr-4 md:px-6">
               <div className="max-w-xl text-left text-white">
                 {hotSaleStatus === 'live' ? (
                   <>
-                    <p className="text-xs md:text-base font-bold tracking-widest uppercase mb-1 drop-shadow" style={{ color: '#e6c97d' }}>✨ Promoción activa</p>
-                    <h1 className="text-3xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
-                      30% OFF<br/>EN TODA LA WEB
+                    <p className="text-xs md:text-base font-black tracking-widest uppercase mb-1 drop-shadow" style={{ color: '#f5c14a' }}>🔥 Oferta única</p>
+                    <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-2 uppercase leading-none drop-shadow-lg">
+                      50% OFF<br/>EN TODA LA WEB
                     </h1>
-                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[280px] md:max-w-md">
-                      Solo hasta el domingo 14 de junio. No te lo pierdas.
+                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-medium drop-shadow-md max-w-[300px] md:max-w-md">
+                      Aprovechá esta oferta única. <b>Solo hasta el domingo 23:59.</b> Gift cards incluidas.
                     </p>
-                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl text-white border-none tracking-widest font-bold uppercase hover:opacity-90" style={{ background: 'linear-gradient(90deg, #b8860b, #c8a96a)' }}>
-                      <Link href="/productos">VER PRODUCTOS &gt;</Link>
+                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl text-white border-none tracking-widest font-black uppercase hover:opacity-95" style={{ background: 'linear-gradient(90deg, #7a1220 0%, #b8860b 50%, #7a1220 100%)' }}>
+                      <Link href="/productos">APROVECHAR AHORA &gt;</Link>
                     </Button>
                   </>
                 ) : (
                   <>
-                    <p className="text-xs md:text-base font-bold tracking-widest uppercase mb-1 drop-shadow" style={{ color: '#e6c97d' }}>✨ Se viene</p>
-                    <h1 className="text-3xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
-                      30% OFF<br/>EN TODA LA WEB
+                    <p className="text-xs md:text-base font-black tracking-widest uppercase mb-1 drop-shadow" style={{ color: '#f5c14a' }}>🔥 Se viene</p>
+                    <h1 className="text-4xl md:text-7xl font-black tracking-tighter mb-2 uppercase leading-none drop-shadow-lg">
+                      50% OFF<br/>EN TODA LA WEB
                     </h1>
-                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[280px] md:max-w-md">
-                      Del lunes 8 al domingo 14 de junio. Marcá la fecha.
+                    <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-medium drop-shadow-md max-w-[300px] md:max-w-md">
+                      Oferta relámpago del martes 30 al domingo 5 de julio. Todo incluido — hasta las gift cards.
                     </p>
-                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl text-white border-none tracking-widest font-bold uppercase hover:opacity-90" style={{ background: 'linear-gradient(90deg, #b8860b, #c8a96a)' }}>
+                    <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl text-white border-none tracking-widest font-black uppercase hover:opacity-95" style={{ background: 'linear-gradient(90deg, #7a1220 0%, #b8860b 50%, #7a1220 100%)' }}>
                       <Link href="/productos">VER PRODUCTOS &gt;</Link>
                     </Button>
                   </>

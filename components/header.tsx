@@ -90,28 +90,28 @@ function MobileCategory({ title, links }: { title: string; links: { name: string
   )
 }
 
-// ---------- PROMO BANNER (tirita dorada arriba del hero) ----------
-// Campaña: 30% OFF en toda la web del lunes 8 al domingo 14 de junio 2026.
+// ---------- PROMO BANNER (tirita arriba del hero) ----------
+// Campaña relámpago: 50% OFF en TODA la web (gift cards incluidas), hasta el domingo 5 de julio 2026 a las 23:59.
 function HotSaleBanner() {
   const [status, setStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
   React.useEffect(() => {
     const now = new Date()
-    const start = new Date(2026, 5, 8)   // 8 Junio (lunes)
-    const end   = new Date(2026, 5, 15)  // 15 Junio 00:00 (exclusivo, así el domingo 14 entra completo)
+    const start = new Date(2026, 5, 30, 0, 0, 0)   // 30 Junio 2026 00:00 (martes)
+    const end   = new Date(2026, 6, 6, 0, 0, 0)    // 6 Julio 2026 00:00 (todo el domingo 5 entra)
     if (now >= end)   setStatus('ended')
     else if (now >= start) setStatus('live')
   }, [])
   if (status === 'ended') return null
   return (
     <div
-      className="text-white py-2 px-4 text-center text-[10px] md:text-sm font-bold tracking-wider uppercase shadow-sm"
+      className="text-white py-2 px-4 text-center text-[10px] md:text-sm font-black tracking-wider uppercase shadow-sm"
       style={{
-        background: 'linear-gradient(90deg, #b8860b 0%, #c8a96a 25%, #e6c97d 50%, #c8a96a 75%, #b8860b 100%)',
+        background: 'linear-gradient(90deg, #7a1220 0%, #b8860b 30%, #f5c14a 50%, #b8860b 70%, #7a1220 100%)',
       }}
     >
       {status === 'live'
-        ? '✨ 30% OFF EN TODA LA WEB · Solo hasta el domingo 14 de junio'
-        : '✨ Se viene 30% OFF EN TODA LA WEB · Del lunes 8 al domingo 14 de junio'}
+        ? '🔥 50% OFF EN TODA LA WEB · Oferta única · Termina domingo 23:59'
+        : '🔥 Se viene 50% OFF EN TODA LA WEB · Del martes 30/6 al domingo 5/7'}
     </div>
   )
 }
