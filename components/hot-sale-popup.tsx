@@ -144,8 +144,6 @@ export function HotSalePopup() {
             className="w-full inline-flex items-center justify-center gap-2 text-white font-black text-sm tracking-[0.15em] uppercase py-4 rounded-full hover:opacity-95 transition-all hover:gap-3 shadow-xl"
             style={{
               background: 'linear-gradient(90deg, #7a1220 0%, #b8860b 50%, #7a1220 100%)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 3s linear infinite',
             }}
           >
             Aprovechar ahora
@@ -159,14 +157,6 @@ export function HotSalePopup() {
             Seguir explorando
           </button>
         </div>
-
-        <style jsx>{`
-          @keyframes shimmer {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-        `}</style>
       </div>
     </div>
   )
