@@ -91,12 +91,12 @@ export function HeroCarousel() {
         </CarouselItem>
         )}
 
-        {/* SLIDE 2: AGENTE IA */}
+        {/* SLIDE 2: ASESOR VIRTUAL */}
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0 transition-all duration-500">
             <Image
               src="/asesor_ia.png"
-              alt="Asesor de inteligencia artificial de C427 - Consultá tu rutina de skincare personalizada"
+              alt="Asesor virtual de C427 - Consultá tu rutina de skincare personalizada"
               fill
               className="object-cover object-right"
             />
@@ -106,7 +106,7 @@ export function HeroCarousel() {
             <div className="container relative z-10 pl-6 pr-4 md:px-6 text-white">
               <div className="max-w-xl text-left">
                 <h1 className="text-2xl md:text-6xl font-bold tracking-tighter mb-2 uppercase leading-tight drop-shadow-lg">
-                  CONSULTÁ CON NUESTRO AGENTE IA
+                  CONSULTÁ CON NUESTRO ASESOR VIRTUAL
                 </h1>
                 <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-light drop-shadow-md max-w-[250px] md:max-w-md">
                   Armá tu rutina ideal con nuestro asesor experto.

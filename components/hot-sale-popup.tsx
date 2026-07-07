@@ -33,6 +33,13 @@ export function HotSalePopup() {
     return () => clearTimeout(timer)
   }, [])
 
+  // Cuando el popup se abre/cierra, avisamos al botón flotante del chat
+  // para que se oculte y no ensucie los screenshots de la promo.
+  useEffect(() => {
+    if (open) window.dispatchEvent(new Event('promoPopupOpen'))
+    else window.dispatchEvent(new Event('promoPopupClose'))
+  }, [open])
+
   const handleClose = () => {
     sessionStorage.setItem(SESSION_KEY, "1")
     setOpen(false)

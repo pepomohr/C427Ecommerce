@@ -4,7 +4,20 @@ import { Sparkles, X, Send, Bot } from 'lucide-react';
 
 export default function ChatIA() {
   const [open, setOpen] = useState(false);
+  const [hiddenByPromo, setHiddenByPromo] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Ocultar el botón flotante mientras el popup de la promo está abierto
+  useEffect(() => {
+    const hide = () => setHiddenByPromo(true);
+    const show = () => setHiddenByPromo(false);
+    window.addEventListener('promoPopupOpen', hide);
+    window.addEventListener('promoPopupClose', show);
+    return () => {
+      window.removeEventListener('promoPopupOpen', hide);
+      window.removeEventListener('promoPopupClose', show);
+    };
+  }, []);
   
   // Mensajes iniciales: Usamos JSX para las negritas reales
   const [messages] = useState([
@@ -36,6 +49,8 @@ export default function ChatIA() {
     return () => window.removeEventListener('openAuraChat', handleOpenChat);
   }, []);
 
+  if (hiddenByPromo) return null;
+
   return (
     <div className="fixed bottom-28 right-6 z-[9999] flex flex-col items-end text-black">
       {open && (
@@ -46,7 +61,7 @@ export default function ChatIA() {
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5" />
               <div>
-                <h3 className="font-bold uppercase tracking-widest text-xs">Consul IA</h3>
+                <h3 className="font-bold uppercase tracking-widest text-xs">Consul</h3>
                 <p className="text-[10px] text-white/80">Asistente en formación</p>
               </div>
             </div>

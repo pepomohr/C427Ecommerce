@@ -35,7 +35,7 @@ export default function DiagnosticoPage() {
             <div className="mb-8 text-center max-w-2xl mx-auto">
               <h1 className="text-4xl font-bold mb-4 text-primary">Descubrí tu Rutina Ideal</h1>
               <p className="text-muted-foreground text-lg">
-                Respondé unas breves preguntas y nuestra IA te recomendará 
+                Respondé unas breves preguntas y nuestro asistente te recomendará
                 los productos perfectos para tu piel.
               </p>
             </div>
