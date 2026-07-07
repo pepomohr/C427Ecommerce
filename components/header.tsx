@@ -91,13 +91,13 @@ function MobileCategory({ title, links }: { title: string; links: { name: string
 }
 
 // ---------- PROMO BANNER (tirita arriba del hero) ----------
-// Campaña relámpago: 50% OFF en TODA la web (gift cards incluidas), hasta el domingo 5 de julio 2026 a las 23:59.
+// Campaña relámpago: 50% OFF en TODA la web (gift cards incluidas), hasta el domingo 13 de julio 2026 a las 23:59.
 function HotSaleBanner() {
   const [status, setStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
   React.useEffect(() => {
     const now = new Date()
-    const start = new Date(2026, 5, 30, 0, 0, 0)   // 30 Junio 2026 00:00 (martes)
-    const end   = new Date(2026, 6, 6, 0, 0, 0)    // 6 Julio 2026 00:00 (todo el domingo 5 entra)
+    const start = new Date(2026, 6, 7, 0, 0, 0)    // 7 Julio 2026 00:00 (lunes)
+    const end   = new Date(2026, 6, 14, 0, 0, 0)   // 14 Julio 2026 00:00 (todo el domingo 13 entra)
     if (now >= end)   setStatus('ended')
     else if (now >= start) setStatus('live')
   }, [])
@@ -111,7 +111,7 @@ function HotSaleBanner() {
     >
       {status === 'live'
         ? '🔥 50% OFF EN TODA LA WEB · Oferta única · Termina domingo 23:59'
-        : '🔥 Se viene 50% OFF EN TODA LA WEB · Del martes 30/6 al domingo 5/7'}
+        : '🔥 Se viene 50% OFF EN TODA LA WEB · Del lunes 7 al domingo 13 de julio'}
     </div>
   )
 }

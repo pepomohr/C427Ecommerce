@@ -1,10 +1,10 @@
 // Configuración central de la PROMO relámpago - 50% OFF EN TODA LA WEB (gift cards incluidas)
-// Del martes 30 de junio 2026 al domingo 5 de julio 2026 a las 23:59.
+// Del lunes 7 de julio 2026 al domingo 13 de julio 2026 a las 23:59.
 // Los precios se computan en runtime, así si la promo termina los carritos vuelven al precio normal.
 
 export const HOT_SALE_DISCOUNT = 0.50 // 50% OFF
-export const HOT_SALE_START = new Date(2026, 5, 30, 0, 0, 0)   // 30 Junio 2026 00:00 (martes)
-export const HOT_SALE_END   = new Date(2026, 6, 6, 0, 0, 0)    // 6 Julio 2026 00:00 (todo el domingo 5 entra)
+export const HOT_SALE_START = new Date(2026, 6, 7, 0, 0, 0)    // 7 Julio 2026 00:00 (lunes)
+export const HOT_SALE_END   = new Date(2026, 6, 14, 0, 0, 0)   // 14 Julio 2026 00:00 (todo el domingo 13 entra)
 
 export type HotSaleStatus = 'preview' | 'live' | 'ended'
 

@@ -20,8 +20,8 @@ export function HeroCarousel() {
   const [hotSaleStatus, setHotSaleStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
   React.useEffect(() => {
     const now = new Date()
-    const start = new Date(2026, 5, 30, 0, 0, 0)  // 30 Junio 2026 00:00 (martes)
-    const end   = new Date(2026, 6, 6, 0, 0, 0)   // 6 Julio 2026 00:00 (todo el domingo 5 entra)
+    const start = new Date(2026, 6, 7, 0, 0, 0)   // 7 Julio 2026 00:00 (lunes)
+    const end   = new Date(2026, 6, 14, 0, 0, 0)  // 14 Julio 2026 00:00 (todo el domingo 13 entra)
     if (now >= end) setHotSaleStatus('ended')
     else if (now >= start) setHotSaleStatus('live')
   }, [])
@@ -37,7 +37,7 @@ export function HeroCarousel() {
       opts={{ loop: true }}
     >
       <CarouselContent>
-        {/* SLIDE 1: PROMO RELÁMPAGO 50% OFF (30 junio al 5 julio) */}
+        {/* SLIDE 1: PROMO RELÁMPAGO 50% OFF (7 al 13 de julio) */}
         {hotSaleStatus !== 'ended' && (
         <CarouselItem>
           <section className="relative overflow-hidden min-h-[380px] md:h-[550px] flex items-end md:items-center pb-10 md:pb-0">
@@ -78,7 +78,7 @@ export function HeroCarousel() {
                       50% OFF<br/>EN TODA LA WEB
                     </h1>
                     <p className="text-sm md:text-xl mb-5 md:mb-8 leading-relaxed font-medium drop-shadow-md max-w-[300px] md:max-w-md">
-                      Oferta relámpago del martes 30 al domingo 5 de julio. Todo incluido — hasta las gift cards.
+                      Oferta relámpago del lunes 7 al domingo 13 de julio. Todo incluido — hasta las gift cards.
                     </p>
                     <Button asChild className="text-[10px] md:text-sm h-8 md:h-12 px-4 md:px-8 rounded-md shadow-xl text-white border-none tracking-widest font-black uppercase hover:opacity-95" style={{ background: 'linear-gradient(90deg, #7a1220 0%, #b8860b 50%, #7a1220 100%)' }}>
                       <Link href="/productos">VER PRODUCTOS &gt;</Link>
