@@ -3,6 +3,18 @@
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+// Unifica los precios: la web muestra el precio de LISTA que setea el Sistema
+// C427 (price_list). Fallback a price y price_cash por compat.
+const mapProduct = (p: any) => {
+  if (!p) return p
+  const preferred =
+    (typeof p.price_list === 'number' ? p.price_list : null) ??
+    (typeof p.price === 'number' ? p.price : null) ??
+    (typeof p.price_cash === 'number' ? p.price_cash : null) ??
+    0
+  return { ...p, price: preferred }
+}
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -38,19 +50,21 @@ export default async function HomePage() {
   }
 
   // Get featured products (first 4 active products)
-  const { data: featuredProducts } = await supabase
+  const { data: featuredProductsRaw } = await supabase
     .from("products")
     .select("*")
     .eq("is_active", true)
     .limit(4)
+  const featuredProducts = (featuredProductsRaw || []).map(mapProduct)
 
   // Get latest products (for Lanzamientos)
-  const { data: latestProducts } = await supabase
+  const { data: latestProductsRaw } = await supabase
     .from("products")
     .select("*")
     .eq("is_active", true)
     .order("created_at", { ascending: false })
     .limit(4)
+  const latestProducts = (latestProductsRaw || []).map(mapProduct)
 
   // Durante la promo, mostramos productos destacados (todos están en oferta, no hay lista especial)
   const hotSaleStatus = getHotSaleStatus()
@@ -63,7 +77,7 @@ export default async function HomePage() {
       .not("name", "ilike", "%gift card%")  // gift cards excluidas de la promo
       .order("created_at", { ascending: false })
       .limit(8)
-    hotSaleItems = data || []
+    hotSaleItems = (data || []).map(mapProduct)
   }
 
   return (

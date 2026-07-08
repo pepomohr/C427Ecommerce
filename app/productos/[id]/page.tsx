@@ -20,12 +20,18 @@ async function getProduct(id: string) {
     .eq("is_active", true)
     .single()
   if (!data) return null
+  // El Sistema C427 setea price_list (precio web/tarjeta). Fallback a legacy.
+  const preferredPrice =
+    (typeof data.price_list === 'number' ? data.price_list : null) ??
+    (typeof data.price === 'number' ? data.price : null) ??
+    (typeof data.price_cash === 'number' ? data.price_cash : null) ??
+    0
   return {
     id:             data.id,
     name:           data.name,
     nombre_web:     data.nombre_web ?? null,
     description:    data.description ?? null,
-    price:          Number(data.price ?? 0),
+    price:          Number(preferredPrice),
     original_price: data.original_price ? Number(data.original_price) : null,
     stock:          Number(data.stock ?? 0),
     category:       data.category ?? null,

@@ -21,6 +21,21 @@ const NO_CACHE_HEADERS = {
   'Vercel-CDN-Cache-Control': 'no-store',
 }
 
+// El Sistema C427 setea price_list y price_cash, pero el frontend histórico
+// del ecommerce lee `product.price`. Como la web muestra el precio de LISTA
+// (para pagos con tarjeta), unificamos: exponemos como `price` el price_list
+// del sistema, con fallback a los otros dos por si algún producto no fue
+// migrado todavía.
+function mapProduct(p: any) {
+  if (!p) return p
+  const preferred =
+    (typeof p.price_list === 'number' ? p.price_list : null) ??
+    (typeof p.price === 'number' ? p.price : null) ??
+    (typeof p.price_cash === 'number' ? p.price_cash : null) ??
+    0
+  return { ...p, price: preferred }
+}
+
 // GET /api/products?tag=antiedad&q=vitamina&id=xxx
 export async function GET(req: NextRequest) {
   try {
@@ -40,7 +55,7 @@ export async function GET(req: NextRequest) {
         .single()
 
       if (error || !data) return NextResponse.json({ error: "Producto no encontrado" }, { status: 404, headers: NO_CACHE_HEADERS })
-      return NextResponse.json(data, { headers: NO_CACHE_HEADERS })
+      return NextResponse.json(mapProduct(data), { headers: NO_CACHE_HEADERS })
     }
 
     let query = supabase
@@ -68,7 +83,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    return NextResponse.json(products, { headers: NO_CACHE_HEADERS })
+    return NextResponse.json(products.map(mapProduct), { headers: NO_CACHE_HEADERS })
 
   } catch (err: any) {
     return NextResponse.json({ error: err.message ?? "Error desconocido" }, { status: 500, headers: NO_CACHE_HEADERS })
