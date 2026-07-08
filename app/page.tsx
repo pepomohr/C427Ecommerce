@@ -1,3 +1,8 @@
+// Nunca cachear la home: los precios se cambian desde el Sistema C427 y
+// tienen que aparecer en la web al instante.
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"

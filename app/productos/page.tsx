@@ -69,7 +69,8 @@ function ProductsContent() {
     if (selectedTag && selectedTag.toLowerCase() !== "todos") params.set("tag", selectedTag)
     if (qParam) params.set("q", qParam)
 
-    const res  = await fetch(`/api/products?${params.toString()}`)
+    // cache: 'no-store' + timestamp: obligamos al navegador a pedir precios frescos siempre.
+    const res  = await fetch(`/api/products?${params.toString()}&_ts=${Date.now()}`, { cache: 'no-store' })
     const data = await res.json()
 
     if (Array.isArray(data)) {

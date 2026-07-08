@@ -1,12 +1,24 @@
 import { NextRequest, NextResponse } from "next/server"
 import { createClient } from "@supabase/supabase-js"
 
-// Lee de la base del ecommerce (NEXT_PUBLIC_SUPABASE_URL = zdqrsoqashegymvqbkmm)
+// Nunca cachear: los precios se actualizan desde el Sistema C427 y tienen que
+// verse en la web al instante. Sin esto, Vercel Edge y el navegador cacheaban
+// la lista vieja y los clientes veían precios que ya habíamos cambiado.
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+// Lee productos del Sistema C427 (misma base que el admin).
 function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   )
+}
+
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+  'CDN-Cache-Control': 'no-store',
+  'Vercel-CDN-Cache-Control': 'no-store',
 }
 
 // GET /api/products?tag=antiedad&q=vitamina&id=xxx
@@ -27,8 +39,8 @@ export async function GET(req: NextRequest) {
         .eq("is_active", true)
         .single()
 
-      if (error || !data) return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 })
-      return NextResponse.json(data)
+      if (error || !data) return NextResponse.json({ error: "Producto no encontrado" }, { status: 404, headers: NO_CACHE_HEADERS })
+      return NextResponse.json(data, { headers: NO_CACHE_HEADERS })
     }
 
     let query = supabase
@@ -56,9 +68,9 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    return NextResponse.json(products)
+    return NextResponse.json(products, { headers: NO_CACHE_HEADERS })
 
   } catch (err: any) {
-    return NextResponse.json({ error: err.message ?? "Error desconocido" }, { status: 500 })
+    return NextResponse.json({ error: err.message ?? "Error desconocido" }, { status: 500, headers: NO_CACHE_HEADERS })
   }
 }
