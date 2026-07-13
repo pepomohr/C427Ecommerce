@@ -12,19 +12,14 @@ import {
 } from "@/components/ui/carousel"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { getHotSaleStatus } from "@/lib/hot-sale"
 
 export function HeroCarousel() {
   const plugin = React.useRef(
     Autoplay({ delay: 5000, stopOnInteraction: false })
   )
   const [hotSaleStatus, setHotSaleStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
-  React.useEffect(() => {
-    const now = new Date()
-    const start = new Date(2026, 6, 7, 0, 0, 0)   // 7 Julio 2026 00:00 (lunes)
-    const end   = new Date(2026, 6, 14, 0, 0, 0)  // 14 Julio 2026 00:00 (todo el domingo 13 entra)
-    if (now >= end) setHotSaleStatus('ended')
-    else if (now >= start) setHotSaleStatus('live')
-  }, [])
+  React.useEffect(() => { setHotSaleStatus(getHotSaleStatus()) }, [])
 
   const handleOpenChat = () => {
     window.dispatchEvent(new Event('openAuraChat'));

@@ -2,6 +2,10 @@
 // Del lunes 7 de julio 2026 al domingo 13 de julio 2026 a las 23:59.
 // Los precios se computan en runtime, así si la promo termina los carritos vuelven al precio normal.
 
+// 🔴 KILL SWITCH: si true, la promo queda DESACTIVADA sin importar las fechas.
+// Usar para apagar rápido si algo sale mal (zona horaria mal calculada, etc).
+export const HOT_SALE_FORCE_OFF = true
+
 export const HOT_SALE_DISCOUNT = 0.50 // 50% OFF
 export const HOT_SALE_START = new Date(2026, 6, 7, 0, 0, 0)    // 7 Julio 2026 00:00 (lunes)
 export const HOT_SALE_END   = new Date(2026, 6, 14, 0, 0, 0)   // 14 Julio 2026 00:00 (todo el domingo 13 entra)
@@ -9,6 +13,7 @@ export const HOT_SALE_END   = new Date(2026, 6, 14, 0, 0, 0)   // 14 Julio 2026 
 export type HotSaleStatus = 'preview' | 'live' | 'ended'
 
 export function getHotSaleStatus(now: Date = new Date()): HotSaleStatus {
+  if (HOT_SALE_FORCE_OFF) return 'ended'
   if (now >= HOT_SALE_END) return 'ended'
   if (now >= HOT_SALE_START) return 'live'
   return 'preview'

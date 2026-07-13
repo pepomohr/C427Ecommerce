@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet"
 import { CartIcon } from "@/components/cart-icon"
+import { getHotSaleStatus } from "@/lib/hot-sale"
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -92,15 +93,10 @@ function MobileCategory({ title, links }: { title: string; links: { name: string
 
 // ---------- PROMO BANNER (tirita arriba del hero) ----------
 // Campaña relámpago: 50% OFF en TODA la web (gift cards incluidas), hasta el domingo 13 de julio 2026 a las 23:59.
+// Usa getHotSaleStatus centralizado para respetar el kill-switch HOT_SALE_FORCE_OFF.
 function HotSaleBanner() {
   const [status, setStatus] = React.useState<'preview' | 'live' | 'ended'>('preview')
-  React.useEffect(() => {
-    const now = new Date()
-    const start = new Date(2026, 6, 7, 0, 0, 0)    // 7 Julio 2026 00:00 (lunes)
-    const end   = new Date(2026, 6, 14, 0, 0, 0)   // 14 Julio 2026 00:00 (todo el domingo 13 entra)
-    if (now >= end)   setStatus('ended')
-    else if (now >= start) setStatus('live')
-  }, [])
+  React.useEffect(() => { setStatus(getHotSaleStatus()) }, [])
   if (status === 'ended') return null
   return (
     <div
